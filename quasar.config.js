@@ -92,7 +92,7 @@ module.exports = configure(function (/* ctx */) {
       // viteVuePluginOptions: {},
 
       vitePlugins: [
-        // viteSingleFile(), //To create a single file and run the app without a web server // Remember to fix assets routes from / to ./ directly in the html file
+        viteSingleFile(), //To create a single file and run the app without a web server // Remember to fix assets routes from / to ./ directly in the html file
         // minifyHtml(),
         ['@intlify/vite-plugin-vue-i18n', {
           // if you want to use Vue I18n Legacy API, you need to set `compositionOnly: false`
@@ -119,7 +119,7 @@ module.exports = configure(function (/* ctx */) {
       },
 
       // iconSet: 'material-icons', // Quasar icon set
-      // lang: 'en-US', // Quasar language pack
+      // lang: 'en', // Quasar language pack
 
       // For special cases outside of where the auto-import strategy can have an impact
       // (like functional components as one of the examples),

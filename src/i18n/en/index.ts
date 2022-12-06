@@ -26,6 +26,10 @@ export default {
     layoutChooseMsg: "You've activated the {number} screens layout",
     disconnectedMsg: "Oops! we couldn't connect to the mixer, check that your mixer is turned on, also check if your device is connected to the mixer wifi, and finally check if the mixer IP is correct."
   },
+  shortcutsModal: {
+    title: 'Soundcraft Ui - Shortcuts',
+    muteAllMsg: 'Are you sure you want to mute all channels?'
+  },
   setupModal: {
     title: 'Soundcraft Ui - Setup',
     errors: {

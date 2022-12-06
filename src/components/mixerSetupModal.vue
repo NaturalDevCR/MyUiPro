@@ -109,7 +109,7 @@
         <div class="col-12 col-md-2 text-center q-mt-md q-pa-md" style="border: 2px dashed orange;border-radius: 5px">
           <q-btn icon="mdi-gift" label="Buy me a coffee" target="_blank" href="https://www.paypal.com/donate/?hosted_button_id=A8MKF5RNGQ77U" color="orange" />
         </div>
-        <span class="text-center col-12 text-bold q-mt-md">My Ui Pro - v1.0.0</span>
+        <span class="text-center col-12 text-bold q-mt-md">My Ui Pro - v{{commonStore.version}}</span>
       </q-card-actions>
     </q-card>
   </q-dialog>
@@ -121,10 +121,12 @@ import {ref, watch} from 'vue'
 import {useQuasar} from 'quasar';
 import {useI18n} from 'vue-i18n';
 const mixerStore = useMixerStore()
+const commonStore = useCommonStore()
 const step = ref<number>(1)
 const $q = useQuasar()
 const { t } = useI18n()
 import {isIPv4} from 'is-ip';
+import {useCommonStore} from 'stores/common-store';
 
 watch(step, (value:number) => {
   console.log(value)

@@ -1,6 +1,8 @@
 <template>
   <q-layout view="lHh Lpr lFf">
     <MixerSetupModal />
+    <MixerShortcutsModal />
+<!--    <LayoutsEditModal />-->
 <!--    <AnalogUi16 />-->
 <!--    <q-drawer-->
 <!--      v-model="leftDrawerOpen"-->
@@ -26,6 +28,8 @@
 <script setup lang="ts">
 import {onMounted, ref} from 'vue';
 import MixerSetupModal from 'components/mixerSetupModal.vue';
+import MixerShortcutsModal from 'components/MixerShortcutsModal.vue';
+import LayoutsEditModal from 'components/LayoutsEditModal.vue';
 // import AnalogUi16 from 'components/analogUi16.vue';
 
 

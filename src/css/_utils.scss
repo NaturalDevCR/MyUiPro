@@ -1,3 +1,12 @@
 .text-sm {
   font-size: 12px;
 }
+.text-xs {
+  font-size: 8px;
+}
+
+.parent { display: -ms-flex; display: -webkit-flex; display: flex; }
+.parent>div { flex:1; align-items: stretch; resize: both; overflow: auto }
+
+.resizer { display:flex; margin:0; padding:0; resize:both; overflow:hidden }
+.resizer > .resized { flex-grow:1; margin:0; padding:0; border:0 }
