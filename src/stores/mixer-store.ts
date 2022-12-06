@@ -42,7 +42,18 @@ export const useMixerStore = defineStore('mixerStore', {
   getters: {
     mixerSrc: (state) => `http://${state.ip}/mixer.html?ID`,
     masterMute: state => state.mixerSettings.muteGroups.master,
-    muteAllFxStatus: state => state.mixerSettings.muteGroups.fx
+    muteAllFxStatus: state => state.mixerSettings.muteGroups.fx,
+    currentElapsedTime: state => {
+      const secondsToTime = (e:any) => {
+        const h = Math.floor(e / 3600).toString().padStart(2,'0'),
+          m = Math.floor(e % 3600 / 60).toString().padStart(2,'0'),
+          s = Math.floor(e % 60).toString().padStart(2,'0');
+
+        return h + ':' + m + ':' + s;
+        //return `${h}:${m}:${s}`;
+      }
+      return secondsToTime(state.mixerSettings.player.currentElapsedTime)
+    }
   },
   actions: {
     uiConnect() {

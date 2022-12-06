@@ -16,6 +16,7 @@
 <!--          <q-tooltip class="bg-white text-primary">Close</q-tooltip>-->
 <!--        </q-btn>-->
         <q-space />
+        <LanguageSwitcher />
       </q-bar>
 
 <!--      <q-card-section>-->
@@ -127,6 +128,7 @@ const $q = useQuasar()
 const { t } = useI18n()
 import {isIPv4} from 'is-ip';
 import {useCommonStore} from 'stores/common-store';
+import LanguageSwitcher from 'components/languageSwitcher.vue';
 
 watch(step, (value:number) => {
   console.log(value)

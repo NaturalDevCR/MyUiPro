@@ -8,7 +8,7 @@
         icon="mdi-arrow-collapse-vertical"
         round
       />
-      <div v-show="!$q.platform.is.mobile && !mixerStore.showPlayerControls" class="text-bold orientation-landscape q-mr-sm">Soundcraft {{mixerStore.mixerModel}}</div>
+      <div v-show="!$q.platform.is.mobile && !mixerStore.showPlayerControls" class="text-bold orientation-landscape q-mr-sm">{{mixerStore.mixerModel}}</div>
       <q-space />
       <div style="border-color: gray; border-radius: 5px" class="row q-card--bordered q-pa-xs orientation-landscape">
         <div v-if="!mixerStore.showPlayerControls" class="layout q-mr-xl">
@@ -62,7 +62,7 @@
             />
 
             <div class="row justify-center items-center content-center">
-              <span class="q-mx-sm col-12 q-my-none text-sm q-my-none ellipsis">{{mixerStore.mixerSettings.player.currentTrack || 'No track selected'}}</span>
+              <span class="q-mx-sm col-12 text-center q-my-none text-sm q-my-none ellipsis">{{mixerStore.mixerSettings.player.currentTrack || 'No track selected'}}</span>
               <q-slider
                 color="teal"
                 style="margin-top: -8px; margin-bottom: -8px"
@@ -70,6 +70,7 @@
                 :inner-min="0"
                 :inner-max="mixerStore.mixerSettings.player.currentLength"
                 switch-label-side
+                :label-value="mixerStore.currentElapsedTime"
                 :model-value="mixerStore.mixerSettings.player.currentElapsedTime"
                 disable
                 label
@@ -112,8 +113,6 @@
 <!--      <div v-if="!$q.platform.is.mobile">{{$t(`connectionStatus.${mixerStore.connStatus}`)}}</div>-->
       <q-icon v-show="!$q.platform.is.mobile && !mixerStore.showPlayerControls" class="q-mr-md" v-if="mixerStore.connStatus === 'OPEN'" color="green" name="mdi-wifi-check" />
       <q-icon v-show="!$q.platform.is.mobile && !mixerStore.showPlayerControls" class="q-mr-md" v-else color="red" name="mdi-wifi-off" />
-
-      <LanguageSwitcher v-show="!mixerStore.showPlayerControls" />
       <q-fab
         padding="5px"
         direction="down"
