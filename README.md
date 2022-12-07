@@ -7,10 +7,14 @@ This App has been made with the purpose of showing multiple frames in a single w
 
 It's also possible to access quick shortcuts to interact directly with the Ui.
 
+## Compatibility
+IT should work on the 3 Ui models right away (Ui12, Ui16, Ui24r)
 
-### Feeling generous?
-## [Buy me a coffee](https://www.paypal.com/donate/?hosted_button_id=A8MKF5RNGQ77U).
+## Known bugs
+Let me know if you find any.
 
+## Feeling generous?
+### [Buy me a coffee](https://www.paypal.com/donate/?hosted_button_id=A8MKF5RNGQ77U).
 
 ## Install the dependencies
 ```bash
@@ -46,6 +50,24 @@ npm run format
 ```bash
 quasar build
 ```
+
+## Build for local access without a server
+```bash
+# ./quasar.config.js
+
+vitePlugins: [
+        //viteSingleFile(), //Uncomment to create an inlined single html file and run the app without a web server // Remember to fix assets routes from / to ./ directly in the html file
+        ...
+```
+
+## Limitations
+* Keyboard shortcuts won't work, this is due to iframes cross-origin limitation.
+* HTML single file version works only on Chrome and Edge, Appearently some firefox versions seem to have problems reported by users
+
+## Tested on
+ * Ui16
+ * Chrome v108.0.5359.94
+ * Firefox v107.0.1
 
 ### Customize the configuration
 See [Configuring quasar.config.js](https://v2.quasar.dev/quasar-cli-vite/quasar-config-js).

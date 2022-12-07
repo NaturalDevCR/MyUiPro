@@ -7,10 +7,7 @@
 
 // Configuration for your app
 // https://v2.quasar.dev/quasar-cli-vite/quasar-config-js
-// import { viteSingleFile } from 'vite-plugin-singlefile'
 const { viteSingleFile } = require('vite-plugin-singlefile')
-// const { minifyHtml } = require('vite-plugin-html')
-// import { minifyHtml } from 'vite-plugin-html';
 
 const { configure } = require('quasar/wrappers');
 const path = require('path');
@@ -34,7 +31,6 @@ module.exports = configure(function (/* ctx */) {
     // https://v2.quasar.dev/quasar-cli-vite/boot-files
     boot: [
       'i18n',
-      'axios',
     ],
 
     // https://v2.quasar.dev/quasar-cli-vite/quasar-config-js#css
@@ -46,7 +42,7 @@ module.exports = configure(function (/* ctx */) {
     extras: [
       // 'ionicons-v4',
       'mdi-v5',
-      'fontawesome-v6',
+      // 'fontawesome-v6',
       // 'eva-icons',
       // 'themify',
       // 'line-awesome',
@@ -93,7 +89,7 @@ module.exports = configure(function (/* ctx */) {
 
       vitePlugins: [
         viteSingleFile(), //To create a single file and run the app without a web server // Remember to fix assets routes from / to ./ directly in the html file
-        // minifyHtml(),
+
         ['@intlify/vite-plugin-vue-i18n', {
           // if you want to use Vue I18n Legacy API, you need to set `compositionOnly: false`
           // compositionOnly: false,

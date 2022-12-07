@@ -4,7 +4,8 @@ import * as app from '../../package.json'
 export const useCommonStore = defineStore('commonStore', {
   state: () => ({
     lang: <null|string>null,
-    version: app.version
+    version: app.version,
+    barSize: '55px',
   }),
   getters: {
     //

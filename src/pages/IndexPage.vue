@@ -1,14 +1,14 @@
 <template>
   <q-page class="bg-dark">
-    <q-bar v-if="!hideBar" dark :style="{background: '#343434!important', height: barSize}" class="text-white">
-<!--      <q-img  height="40px" width="40px" src="/icons/SUI-LOGO.png" alt="logo" class="cursor-pointer" @click="hideBar = true; barSize = '0px'" />-->
+    <q-bar v-if="!hideBar" dark :style="{background: '#343434!important', height: commonStore.barSize}" class="text-white">
       <q-btn
         color="dark"
-        @click="barSize = '0px'; hideBar = true"
+        @click="commonStore.barSize = '0px'; hideBar = true"
         icon="mdi-arrow-collapse-vertical"
         round
       />
       <div v-show="!$q.platform.is.mobile && !mixerStore.showPlayerControls" class="text-bold orientation-landscape q-mr-sm">{{mixerStore.mixerModel}}</div>
+      <div class="text-red text-bold" v-show="mixerStore.isDemoMode">DEMO MODE</div>
       <q-space />
       <div style="border-color: gray; border-radius: 5px" class="row q-card--bordered q-pa-xs orientation-landscape">
         <div v-if="!mixerStore.showPlayerControls" class="layout q-mr-xl">
@@ -35,6 +35,7 @@
         <div class="edit">
           <q-btn
             v-if="!mixerStore.showPlayerControls"
+            :disable="mixerStore.isDemoMode"
             class="q-mr-xl"
             icon="mdi-arrow-left-right-bold"
             color="teal"
@@ -103,6 +104,7 @@
         </div>
         <div v-if="!mixerStore.showPlayerControls" class="shortcuts">
           <q-btn
+            :disable="mixerStore.isDemoMode"
             icon="mdi-open-in-new"
             color="dark"
             @click="mixerStore.shortcutsModal = true"
@@ -110,7 +112,6 @@
         </div>
       </div>
       <q-space />
-<!--      <div v-if="!$q.platform.is.mobile">{{$t(`connectionStatus.${mixerStore.connStatus}`)}}</div>-->
       <q-icon v-show="!$q.platform.is.mobile && !mixerStore.showPlayerControls" class="q-mr-md" v-if="mixerStore.connStatus === 'OPEN'" color="green" name="mdi-wifi-check" />
       <q-icon v-show="!$q.platform.is.mobile && !mixerStore.showPlayerControls" class="q-mr-md" v-else color="red" name="mdi-wifi-off" />
       <q-fab
@@ -131,225 +132,35 @@
       </q-fab>
     </q-bar>
     <q-page-sticky v-else position="top" :offset="fabPos">
-      <q-btn @click="hideBar = false; barSize = '55px'" dense round icon="mdi-arrow-split-horizontal" color="dark" />
+      <q-btn
+        @click="hideBar = false; commonStore.barSize = '55px'"
+        dense
+        round
+        icon="mdi-arrow-split-horizontal"
+        color="dark"
+      />
     </q-page-sticky>
 
-    <div v-if="mixerStore.ip && isIPv4(mixerStore.ip) && mixerStore.connStatus === 'OPEN'">
-      <div class="q-pa-xs" v-if="mixerStore.layout === 1" :style="{height: `calc(100vh - ${barSize})`}">
-        <div class="parent" style="height: 100%">
-          <iframe ref="mixer1" id="mixer01" class="full-width" :src="mixerStore.mixerSrc" />
-        </div>
-      </div>
-      <div class="q-pa-xs" v-if="mixerStore.layout === 2" :style="{height: `calc(100vh - ${barSize})`}">
-        <div class="parent" style="height: 50%">
-          <iframe class="full-width" :src="mixerStore.mixerSrc" />
-        </div>
-        <div class="parent" style="height: 50%">
-          <iframe class="full-width" :src="mixerStore.mixerSrc" />
-        </div>
-      </div>
-      <div class="q-pa-xs" v-if="mixerStore.layout === 3.1" :style="{height: `calc(100vh - ${barSize})`}">
-<!--        <frameset rows='*,60%' bordercolor='#C0C0C0'>-->
-<!--          <frameset cols='50%,*' bordercolor='#C0C0C0'>-->
-<!--            <frame :src="mixerStore.mixerSrc" />-->
-<!--            <frame :src="mixerStore.mixerSrc" />-->
-<!--          </frameset>-->
-<!--          <frame :src="mixerStore.mixerSrc" />-->
-<!--        </frameset>-->
-        <div class="parent" style="height: 60%">
-          <iframe class="full-width" :src="mixerStore.mixerSrc" />
-        </div>
-        <div class="parent" style="height: 40%">
-          <div class="full-height">
-            <iframe class="full-width full-height" :src="mixerStore.mixerSrc" />
-          </div>
-          <div class="full-height">
-            <iframe class="full-width full-height" :src="mixerStore.mixerSrc" />
-          </div>
-        </div>
-      </div>
-      <div class="q-pa-xs" v-if="mixerStore.layout === 3.2" :style="{height: `calc(100vh - ${barSize})`}">
-        <!--        <frameset rows='*,60%' bordercolor='#C0C0C0'>-->
-        <!--          <frameset cols='50%,*' bordercolor='#C0C0C0'>-->
-        <!--            <frame :src="mixerStore.mixerSrc" />-->
-        <!--            <frame :src="mixerStore.mixerSrc" />-->
-        <!--          </frameset>-->
-        <!--          <frame :src="mixerStore.mixerSrc" />-->
-        <!--        </frameset>-->
-
-        <div class="parent" style="height: 40%">
-          <div class="full-height">
-            <iframe class="full-width full-height" :src="mixerStore.mixerSrc" />
-          </div>
-          <div class="full-height">
-            <iframe class="full-width full-height" :src="mixerStore.mixerSrc" />
-          </div>
-        </div>
-        <div class="parent" style="height: 60%">
-          <iframe class="full-width" :src="mixerStore.mixerSrc" />
-        </div>
-      </div>
-      <div class="q-pa-xs" v-if="mixerStore.layout === 4" :style="{height: `calc(100vh - ${barSize})`}">
-        <div class="parent" style="height: 50%">
-          <div class="full-height">
-            <iframe class="full-width full-height" :src="mixerStore.mixerSrc" />
-          </div>
-          <div class="full-height">
-            <iframe class="full-width full-height" :src="mixerStore.mixerSrc" />
-          </div>
-        </div>
-        <div class="parent" style="height: 50%">
-          <div class="full-height">
-            <iframe class="full-width full-height" :src="mixerStore.mixerSrc" />
-          </div>
-          <div class="full-height">
-            <iframe class="full-width full-height" :src="mixerStore.mixerSrc" />
-          </div>
-        </div>
-      </div>
-      <div class="q-pa-xs" v-if="mixerStore.layout === 5.1" :style="{height: `calc(100vh - ${barSize})`}">
-        <div class="parent" style="height: 30%">
-          <iframe class="full-width" :src="mixerStore.mixerSrc" />
-        </div>
-        <div class="parent" style="height: 35%">
-          <div class="full-height">
-            <iframe class="full-width full-height" :src="mixerStore.mixerSrc" />
-          </div>
-          <div class="full-height">
-            <iframe class="full-width full-height" :src="mixerStore.mixerSrc" />
-          </div>
-        </div>
-        <div class="parent" style="height: 35%">
-          <div class="full-height">
-            <iframe class="full-width full-height" :src="mixerStore.mixerSrc" />
-          </div>
-          <div class="full-height">
-            <iframe class="full-width full-height" :src="mixerStore.mixerSrc" />
-          </div>
-        </div>
-      </div>
-      <div class="q-pa-xs" v-if="mixerStore.layout === 5.2" :style="{height: `calc(100vh - ${barSize})`}">
-        <div class="parent" style="height: 35%">
-          <div class="full-height">
-            <iframe class="full-width full-height" :src="mixerStore.mixerSrc" />
-          </div>
-          <div class="full-height">
-            <iframe class="full-width full-height" :src="mixerStore.mixerSrc" />
-          </div>
-        </div>
-        <div class="parent" style="height: 30%">
-          <iframe class="full-width" :src="mixerStore.mixerSrc" />
-        </div>
-        <div class="parent" style="height: 35%">
-          <div class="full-height">
-            <iframe class="full-width full-height" :src="mixerStore.mixerSrc" />
-          </div>
-          <div class="full-height">
-            <iframe class="full-width full-height" :src="mixerStore.mixerSrc" />
-          </div>
-        </div>
-      </div>
-      <div class="q-pa-xs" v-if="mixerStore.layout === 5.3" :style="{height: `calc(100vh - ${barSize})`}">
-
-        <div class="parent" style="height: 35%">
-          <div class="full-height">
-            <iframe class="full-width full-height" :src="mixerStore.mixerSrc" />
-          </div>
-          <div class="full-height">
-            <iframe class="full-width full-height" :src="mixerStore.mixerSrc" />
-          </div>
-        </div>
-        <div class="parent" style="height: 35%">
-          <div class="full-height">
-            <iframe class="full-width full-height" :src="mixerStore.mixerSrc" />
-          </div>
-          <div class="full-height">
-            <iframe class="full-width full-height" :src="mixerStore.mixerSrc" />
-          </div>
-        </div>
-        <div class="parent" style="height: 30%">
-          <iframe class="full-width" :src="mixerStore.mixerSrc" />
-        </div>
-      </div>
-      <div class="q-pa-xs" v-if="mixerStore.layout === 6" :style="{height: `calc(100vh - ${barSize})`}">
-
-        <div class="parent" style="height: 25%">
-          <div class="full-height">
-            <iframe class="full-width full-height" :src="mixerStore.mixerSrc" />
-          </div>
-          <div class="full-height">
-            <iframe class="full-width full-height" :src="mixerStore.mixerSrc" />
-          </div>
-        </div>
-        <div class="parent" style="height: 25%">
-          <iframe class="full-width" :src="mixerStore.mixerSrc" />
-        </div>
-        <div class="parent" style="height: 25%">
-          <iframe class="full-width" :src="mixerStore.mixerSrc" />
-        </div>
-        <div class="parent" style="height: 25%">
-          <div class="full-height">
-            <iframe class="full-width full-height" :src="mixerStore.mixerSrc" />
-          </div>
-          <div class="full-height">
-            <iframe class="full-width full-height" :src="mixerStore.mixerSrc" />
-          </div>
-        </div>
-      </div>
-
-    </div>
-    <div  style="height: calc(100vh - 45px)" v-else class="bg-red text-white text-center q-pa-md flex flex-center">
-      <div>
-        <div style="font-size: 30vh">
-          <q-icon name="mdi-alert-remove-outline" color="white" />
-        </div>
-
-        <div class="text-h5" style="opacity:.8">
-          {{$t('misc.disconnectedMsg')}}
-        </div>
-
-        <q-btn
-          @click="reload"
-          size="xl"
-          class="q-mt-xl"
-          color="white"
-          text-color="blue"
-          unelevated
-          to="/"
-          :label="$t('misc.reload')"
-          no-caps
-        />
-      </div>
-    </div>
+    <MultiFrames />
   </q-page>
 </template>
 
 <script setup lang="ts">
 import {computed, onMounted, ref, watch} from 'vue'
 import {useMixerStore} from 'stores/mixer-store';
-import {isIPv4} from 'is-ip';
 import {useQuasar} from 'quasar';
-const mixerStore = useMixerStore()
 import {useI18n} from 'vue-i18n';
-import LanguageSwitcher from 'components/languageSwitcher.vue';
+import {useCommonStore} from 'stores/common-store';
+import {reload} from 'src/utils/helpers';
+import MultiFrames from 'components/MultiFrames.vue';
+
+const mixerStore = useMixerStore()
+const commonStore = useCommonStore()
 const {t} = useI18n()
 const $q = useQuasar()
 
-const barSize = ref<string>('55px');
-
-// const mixer1 = ref<any>()
-
-// const onKeyPress = (e:any) => {
-//   console.log(e.key)
-//   const q:any = document.querySelector('#mixer01')
-//   console.log(q.contentWindow)
-//   q.contentWindow.postMessage(e.key, '*')
-// }
-
-const reload = () => {
-  location.reload()
-}
 const hideBar = ref<boolean>(false)
+const fabPos = ref([ 5, 5 ])
 const layoutIcon = computed(() => {
   switch (mixerStore.layout) {
     case 1:
@@ -409,26 +220,15 @@ watch(() => mixerStore.connStatus, async (value: string) => {
   }
 })
 watch(() => mixerStore.layout, (value:number|string) => {
-  if (value === 'Custom'){
-    //TODO: Create a custom layout by the user
-  }
+  // if (value === 'Custom'){
+  //   //TODO: Create a custom layout by the user
+  // }
   $q.notify({
     message: t('misc.layoutChooseMsg', {number: value})
   })
 })
 
-const fabPos = ref([ 5, 5 ])
-const draggingFab = ref(false)
-const moveFab = (ev:any) => {
-  draggingFab.value = ev.isFirst !== true && ev.isFinal !== true
-
-  fabPos.value = [
-    fabPos.value[ 0 ] - ev.delta.x,
-    fabPos.value[ 1 ] - ev.delta.y
-  ]
-}
 onMounted(async () => {
-  // window.addEventListener('keydown', onKeyPress)
   await mixerStore.uiConnect()
 })
 const layouts = [
@@ -470,6 +270,3 @@ const layouts = [
   },
 ]
 </script>
-<style scoped>
-
-</style>

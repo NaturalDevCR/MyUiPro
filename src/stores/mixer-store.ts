@@ -1,9 +1,10 @@
 import { defineStore } from 'pinia';
 import { SoundcraftUI } from 'soundcraft-ui-connection';
-import {isIPv4} from 'is-ip';
+import {isAllowedURL, isValidMixerIp, reload} from 'src/utils/helpers';
 
 export const useMixerStore = defineStore('mixerStore', {
   state: () => ({
+    isDemoMode: <boolean>false,
     analogUi16Modal: <boolean>true,
     setupModal: <boolean> false,
     shortcutsModal: <boolean> false,
@@ -40,7 +41,7 @@ export const useMixerStore = defineStore('mixerStore', {
     }
   }),
   getters: {
-    mixerSrc: (state) => `http://${state.ip}/mixer.html?ID`,
+    mixerSrc: (state) => state.isDemoMode ? state.ip : `http://${state.ip}/mixer.html?ID`,
     masterMute: state => state.mixerSettings.muteGroups.master,
     muteAllFxStatus: state => state.mixerSettings.muteGroups.fx,
     currentElapsedTime: state => {
@@ -50,32 +51,35 @@ export const useMixerStore = defineStore('mixerStore', {
           s = Math.floor(e % 60).toString().padStart(2,'0');
 
         return h + ':' + m + ':' + s;
-        //return `${h}:${m}:${s}`;
       }
       return secondsToTime(state.mixerSettings.player.currentElapsedTime)
     }
   },
   actions: {
     uiConnect() {
-      if (isIPv4(this.ip) && this.mixerModel){
-        this.conn = new SoundcraftUI(this.ip)
-        this.conn.status$.subscribe((status:any) => {
-          this.connStatus = status.type
-          // console.log(status)
-        });
-        this.conn.connect()
+      if (isValidMixerIp(this.ip) && this.mixerModel){
+        if (isAllowedURL(this.ip)){
+          this.isDemoMode = true
+        }else {
+          this.isDemoMode = false
+          this.conn = new SoundcraftUI(this.ip)
+          this.conn.status$.subscribe((status:any) => {
+            this.connStatus = status.type
+          });
+          this.conn.connect()
+        }
       }else {
         this.setupModal = true
       }
 
     },
     uiDisconnect() {
-      this.conn.disconnect()
+      if (!this.isDemoMode){
+        this.conn.disconnect()
+      }
       this.ip = '';
       this.mixerModel = '';
-      localStorage.clear();
-      sessionStorage.clear();
-      location.reload();
+      reload(true)
     },
     muteGroup(type:string) {
       this.conn.muteGroup(type).mute()
@@ -83,7 +87,7 @@ export const useMixerStore = defineStore('mixerStore', {
     unMuteGroup(type:string) {
       this.conn.muteGroup(type).unmute()
     },
-    playerActions(action: string, param = '') {
+    playerActions(action: string) {
       switch (true) {
         case action === 'play':
           return this.conn.player.play()

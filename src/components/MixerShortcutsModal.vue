@@ -1,7 +1,6 @@
 <template>
   <q-dialog
     v-model="mixerStore.shortcutsModal"
-    persistent
     transition-show="slide-down"
     transition-hide="slide-up"
   >
@@ -109,7 +108,7 @@ import {ref} from 'vue'
 import {useMixerStore} from 'stores/mixer-store';
 import {useCommonStore} from 'stores/common-store';
 const commonStore = useCommonStore()
-
 const mixerStore = useMixerStore()
+
 const tab = ref<string>('mutes')
 </script>

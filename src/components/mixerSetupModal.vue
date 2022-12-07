@@ -71,7 +71,7 @@
             <div class="row">
               <div class="col-4">
                 <q-input
-                  :rules="[val => !!val || $t('validation.required'), val => isIPv4(val) || $t('validation.invalidIP')]"
+                  :rules="[val => !!val || $t('validation.required'), val => isValidMixerIp(mixerStore.ip) || $t('validation.invalidIP')]"
                   dark
                   v-model="mixerStore.ip"
                   label="Mixer IP"
@@ -95,7 +95,7 @@
             {{$t('setupModal.stepper.step3.text')}}
             <br />
             <q-stepper-navigation>
-              <q-btn @click="mixerStore.setupModal = false; mixerStore.uiConnect()" color="teal" :label="$t('misc.continue')" />
+              <q-btn @click="finishSetup" color="teal" :label="$t('misc.continue')" />
               <q-btn flat @click="step = 1" color="orange" :label="$t('misc.back')" class="q-ml-sm" />
             </q-stepper-navigation>
           </q-step>
@@ -126,10 +126,15 @@ const commonStore = useCommonStore()
 const step = ref<number>(1)
 const $q = useQuasar()
 const { t } = useI18n()
-import {isIPv4} from 'is-ip';
+import { isValidMixerIp } from 'src/utils/helpers';
+
 import {useCommonStore} from 'stores/common-store';
 import LanguageSwitcher from 'components/languageSwitcher.vue';
 
+const finishSetup = () => {
+  mixerStore.setupModal = false;
+  mixerStore.uiConnect()
+}
 watch(step, (value:number) => {
   console.log(value)
   if (!mixerStore.mixerModel && [2, 3, 4].includes(value)) {
@@ -141,7 +146,7 @@ watch(step, (value:number) => {
     })
     step.value = 1
   }
-  if ((!mixerStore.ip || !isIPv4(mixerStore.ip)) && [3, 4].includes(value)) {
+  if (!isValidMixerIp(mixerStore.ip) && [3, 4].includes(value)) {
     $q.notify({
       message: t('setupModal.errors.noIP'),
       type: 'negative',
