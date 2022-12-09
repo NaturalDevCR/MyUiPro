@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { SoundcraftUI } from 'soundcraft-ui-connection';
 import {isAllowedURL, isValidMixerIp, reload} from 'src/utils/helpers';
-
+import { map, filter, first } from 'rxjs/operators'
 export const useMixerStore = defineStore('mixerStore', {
   state: () => ({
     isDemoMode: <boolean>false,
@@ -13,6 +13,11 @@ export const useMixerStore = defineStore('mixerStore', {
     conn: <any> null,
     connStatus: '',
     mixerModel: '',
+    mixerPassword: '',
+    mixerInfo: {
+      model: '',
+      firmware: '',
+    },
     layout: <string|number>1,
     ip: '',
 
@@ -56,8 +61,38 @@ export const useMixerStore = defineStore('mixerStore', {
     }
   },
   actions: {
+    getUiModel() {
+      const model$ = this.conn.store.state$.pipe(
+        map((state:any) => state.model),
+        filter(e => !!e),
+        first()
+      );
+      model$.subscribe((val:string) => {
+        this.mixerInfo.model = val.toUpperCase()
+      })
+    },
+    getMixerPassword() {
+      const password$ = this.conn.store.state$.pipe(
+        map((state:any) => state.settings.block.pass),
+        filter(e => !!e),
+        first()
+      );
+      password$.subscribe((val:string) => {
+        this.mixerPassword = val
+      })
+    },
+    getFirmwareVersion() {
+      const firmware$ = this.conn.store.state$.pipe(
+        map((state:any) => state.firmware),
+        filter(e => !!e),
+        first()
+      );
+      firmware$.subscribe((val:string) => {
+        this.mixerInfo.firmware = val
+      })
+    },
     uiConnect() {
-      if (isValidMixerIp(this.ip) && this.mixerModel){
+      if (isValidMixerIp(this.ip)){
         if (isAllowedURL(this.ip)){
           this.isDemoMode = true
         }else {
@@ -67,6 +102,8 @@ export const useMixerStore = defineStore('mixerStore', {
             this.connStatus = status.type
           });
           this.conn.connect()
+          this.getUiModel()
+          this.getFirmwareVersion()
         }
       }else {
         this.setupModal = true
@@ -79,7 +116,8 @@ export const useMixerStore = defineStore('mixerStore', {
       }
       this.ip = '';
       this.mixerModel = '';
-      reload(true)
+      this.setupModal = true
+      // reload(true)
     },
     muteGroup(type:string) {
       this.conn.muteGroup(type).mute()
@@ -110,10 +148,29 @@ export const useMixerStore = defineStore('mixerStore', {
     },
 
     async listeners() {
+      // this.getRawStream()
       //Master Fader Level DB
-      this.conn.master.faderLevelDB$.subscribe((value:any) => {
-        console.log(value)
-      });
+      // this.conn.master.faderLevelDB$.subscribe((value:any) => {
+      //   console.log(value)
+      // });
+      // this.conn.store.messages$.subscribe((val:any) => {
+      //   // console.log(val)
+      // })
+
+      // this.conn.store.conn.allMessages$.subscribe((val:any) => {
+      //   const msg = val.substring(0, 5)
+      //   const ignoreMsgs = ['VU2^D', 'RTA^A', 'SETD^', 'SETS^']
+      //   if (!ignoreMsgs.includes(msg)){
+      //     console.log(val)
+      //   }
+      //
+      // })
+
+      // this.conn.store.state$.subscribe((value:any) => {
+      //   if (!this.mixerModel){
+      //     this.mixerModel = value.model
+      //   }
+      // })
 
       //Master Mute
       this.conn.muteGroup('all').state$.subscribe((value:number) => {

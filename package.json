@@ -1,17 +1,22 @@
 {
   "name": "my-ui-pro",
-  "version": "1.0.10",
+  "version": "1.0.11",
   "description": "Soundcraft Ui Multiframe Wrapper",
   "productName": "My Ui Pro",
   "author": "Josue Orozco A. <35145882+NaturalDevCR@users.noreply.github.com>",
   "private": true,
   "scripts": {
     "lint": "eslint --ext .js,.ts,.vue ./",
+    "create-win64-binaries": "quasar build -m electron -T win32 -A x64",
+    "create-darwin64-binaries": "quasar build -m electron -T darwin -A x64",
+    "create-all-x64-binaries": "quasar build -m electron -T all -A x64",
+    "create-all-arm-binaries": "quasar build -m electron -T all",
     "format": "prettier --write \"**/*.{js,ts,vue,scss,html,md,json}\" --ignore-path .gitignore",
     "test": "echo \"No test specified\" && exit 0"
   },
   "dependencies": {
     "@quasar/extras": "^1.15.7",
+    "@vueuse/core": "^9.6.0",
     "events": "^3.3.0",
     "is-ip": "^5.0.0",
     "pinia": "^2.0.27",
@@ -32,6 +37,7 @@
     "@typescript-eslint/parser": "^5.10.0",
     "autoprefixer": "^10.4.2",
     "electron": "^22.0.0",
+    "electron-builder": "^22.4.0",
     "electron-packager": "^15.5.2",
     "eslint": "^8.10.0",
     "eslint-config-prettier": "^8.1.0",

@@ -17,12 +17,15 @@ export default {
     invalidIP: 'La ip ingresada es inválida'
   },
   misc: {
+    midiSettings: 'Configuración MIDI',
     continue: 'Continuar',
+    connect: 'Conectar',
     disconnect: 'Desconectar',
     back: 'Regresar',
     settings: 'Ajustes',
     options: 'Opciones',
     reload: 'Recargar',
+    supportMe: 'Apoyame con una donación',
     layoutChooseMsg: 'Has activado el layout de {number} pantallas',
     disconnectedMsg: 'Ups! parece que no estás conectado a tu mixer, revisa que esté encendida, que estes conectad@ al wifi de la mixer, y que la IP de la mixer es correcta.'
   },
@@ -36,19 +39,6 @@ export default {
       noModel: 'Primero define cuál es el modelo de tu Ui',
       noIP: 'Debes definir la IP de tu mixer para poder continuar'
     },
-    stepper: {
-      step1: {
-        title: 'Modelo de Ui',
-        text: 'Por favor selecciona el modelo de tu mixer Soundcraft Ui'
-      },
-      step2: {
-        title: 'Mixer IP',
-        text: 'Primero asegurate de estar conectado al wifi de tu mixer, luego configura la IP a continuación para establecer la conexión, la ip por defecto usualmente es: 10.10.1.1'
-      },
-      step3: {
-        title: 'Listo!',
-        text: 'Perfecto, has configurado la aplicación, asegurate que tu mixer esté encendida, que tu dispositivo esté conectado a la red wifi de tu mixer, y que la IP que has configurado sea la correcta, si borras la aplicación o la caché de la misma, tendrás que volver a configurar estos datos'
-      }
-    }
+    advice: 'Por favor, asegurate que tu mixer esté encendida, revisa que estés conectado al wifi de tu mixer, y verifica que la IP de tu mixer es la correcta',
   }
 };

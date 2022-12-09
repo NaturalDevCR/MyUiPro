@@ -7,7 +7,17 @@
         icon="mdi-arrow-collapse-vertical"
         round
       />
-      <div v-show="!$q.platform.is.mobile && !mixerStore.showPlayerControls" class="text-bold orientation-landscape q-mr-sm">{{mixerStore.mixerModel}}</div>
+      <div
+        v-show="!$q.platform.is.mobile && !mixerStore.showPlayerControls"
+        class="text-bold orientation-landscape q-mr-sm">
+        {{mixerStore.mixerInfo.model}}
+        <q-tooltip anchor="center right" self="center left" :offset="[10, 10]" class="bg-dark">
+          <span class="text-h6">
+            Firmware version: {{mixerStore.mixerInfo.firmware}}
+          </span>
+
+        </q-tooltip>
+      </div>
       <div class="text-red text-bold" v-show="mixerStore.isDemoMode">DEMO MODE</div>
       <q-space />
       <div style="border-color: gray; border-radius: 5px" class="row q-card--bordered q-pa-xs orientation-landscape">
@@ -36,16 +46,20 @@
           <q-btn
             v-if="!mixerStore.showPlayerControls"
             :disable="mixerStore.isDemoMode"
+            padding="5px"
+            size="sm"
             class="q-mr-xl"
-            icon="mdi-arrow-left-right-bold"
+            icon="mdi-music-circle"
             color="teal"
             @click="mixerStore.showPlayerControls = true"
           />
+
           <div v-else class="bg-blue-grey-8 rounded-borders row">
             <q-btn
               v-if="mixerStore.showPlayerControls"
               class="q-ma-xs"
-              icon="mdi-arrow-left-right-bold"
+              icon="mdi-home"
+              padding="5px"
               color="teal"
               @click="mixerStore.showPlayerControls = false"
             />
@@ -115,19 +129,22 @@
       <q-icon v-show="!$q.platform.is.mobile && !mixerStore.showPlayerControls" class="q-mr-md" v-if="mixerStore.connStatus === 'OPEN'" color="green" name="mdi-wifi-check" />
       <q-icon v-show="!$q.platform.is.mobile && !mixerStore.showPlayerControls" class="q-mr-md" v-else color="red" name="mdi-wifi-off" />
       <q-fab
-        padding="5px"
+        padding="10px"
         direction="down"
         color="dark"
         icon="keyboard_arrow_down"
       >
-        <q-fab-action @click="mixerStore.setupModal = true" color="teal" icon="mdi-cog">
+        <q-fab-action @click="mixerStore.setupModal = true" color="teal-5" icon="mdi-cog">
           <q-tooltip class="bg-teal" anchor="center left" self="center right" :offset="[10, 10]">{{$t('misc.settings')}}</q-tooltip>
         </q-fab-action>
         <q-fab-action @click="mixerStore.uiDisconnect()" color="red" icon="mdi-lan-disconnect">
           <q-tooltip class="bg-teal" anchor="center left" self="center right" :offset="[10, 10]">{{$t('misc.disconnect')}}</q-tooltip>
         </q-fab-action>
-        <q-fab-action @click="reload" icon="mdi-reload" color="teal">
+        <q-fab-action @click="reload" icon="mdi-reload" color="dark">
           <q-tooltip class="bg-teal" anchor="center left" self="center right" :offset="[10, 10]">{{$t('misc.reload')}}</q-tooltip>
+        </q-fab-action>
+        <q-fab-action disable icon="mdi-midi" color="green">
+          <q-tooltip class="bg-teal" anchor="center left" self="center right" :offset="[10, 10]">{{$t('misc.midiSettings')}}</q-tooltip>
         </q-fab-action>
       </q-fab>
     </q-bar>

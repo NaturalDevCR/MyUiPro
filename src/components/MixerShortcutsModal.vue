@@ -28,6 +28,8 @@
           >
             <q-tab name="mutes" label="Mutes" />
             <q-tab disable name="solos" label="Solos" />
+            <q-tab disable name="automation" label="Automation" />
+            <q-tab disable name="automation" label="MIDI Settings" />
           </q-tabs>
 
           <q-separator />
