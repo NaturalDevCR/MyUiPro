@@ -74,6 +74,7 @@ See [Configuring quasar.config.js](https://v2.quasar.dev/quasar-cli-vite/quasar-
 
 ## Credits
 Watch and say thanks to @fmalcher for his [Connection Library](https://github.com/fmalcher/soundcraft-ui/tree/main/packages/mixer-connection).
+Make sure you support him! ;)
 
 ## Want to join the Ui Community?
 [Soundcraft Ui24r Community](https://www.facebook.com/groups/SoundcraftUimixerusers)
