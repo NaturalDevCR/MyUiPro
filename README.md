@@ -11,7 +11,7 @@ It's also possible to access quick shortcuts to interact directly with the Ui.
 IT should work on the 3 Ui models right away (Ui12, Ui16, Ui24r)
 
 ## Known bugs
-Let me know if you find any.
+-- Keyboard shortcuts won't work and will never work, this is a known limitation for iframes.
 
 ## Feeling generous?
 ### [Buy me a coffee](https://www.paypal.com/donate/?hosted_button_id=A8MKF5RNGQ77U).
@@ -74,6 +74,7 @@ See [Configuring quasar.config.js](https://v2.quasar.dev/quasar-cli-vite/quasar-
 
 ## Credits
 Watch and say thanks to @fmalcher for his [Connection Library](https://github.com/fmalcher/soundcraft-ui/tree/main/packages/mixer-connection).
+Make sure you support him! ;)
 
 ## Want to join the Ui Community?
 [Soundcraft Ui24r Community](https://www.facebook.com/groups/SoundcraftUimixerusers)
