@@ -1,0 +1,7 @@
+{
+  "appId": "org.naturaldev.myuipro",
+  "appName": "My Ui Pro",
+  "bundledWebRuntime": false,
+  "npmClient": "yarn",
+  "webDir": "www"
+}

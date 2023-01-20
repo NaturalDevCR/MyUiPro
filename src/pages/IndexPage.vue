@@ -77,7 +77,7 @@
             />
 
             <div class="row justify-center items-center content-center">
-              <span class="q-mx-sm col-12 text-center q-my-none text-sm q-my-none ellipsis">{{mixerStore.mixerSettings.player.currentTrack || 'No track selected'}}</span>
+              <span @click="getPlaylist" class="q-mx-sm col-12 text-center q-my-none text-sm q-my-none ellipsis">{{mixerStore.mixerSettings.player.currentTrack || 'No track selected'}}</span>
               <q-slider
                 color="teal"
                 style="margin-top: -8px; margin-bottom: -8px"
@@ -143,13 +143,14 @@
         <q-fab-action @click="reload" icon="mdi-reload" color="dark">
           <q-tooltip class="bg-teal" anchor="center left" self="center right" :offset="[10, 10]">{{$t('misc.reload')}}</q-tooltip>
         </q-fab-action>
-        <q-fab-action disable icon="mdi-midi" color="green">
+        <q-fab-action @click="midiStore.midiSetupModal = true" icon="mdi-midi" color="green">
           <q-tooltip class="bg-teal" anchor="center left" self="center right" :offset="[10, 10]">{{$t('misc.midiSettings')}}</q-tooltip>
         </q-fab-action>
       </q-fab>
     </q-bar>
-    <q-page-sticky v-else position="top" :offset="fabPos">
+    <q-page-sticky class="z-max" v-else :position="fabPos" :offset="fabOffset">
       <q-btn
+        size="sm"
         @click="hideBar = false; commonStore.barSize = '55px'"
         dense
         round
@@ -170,14 +171,17 @@ import {useI18n} from 'vue-i18n';
 import {useCommonStore} from 'stores/common-store';
 import {reload} from 'src/utils/helpers';
 import MultiFrames from 'components/MultiFrames.vue';
+import {useMidiStore} from 'stores/midi-store';
 
 const mixerStore = useMixerStore()
 const commonStore = useCommonStore()
+const midiStore = useMidiStore()
 const {t} = useI18n()
 const $q = useQuasar()
 
 const hideBar = ref<boolean>(false)
-const fabPos = ref([ 5, 5 ])
+const fabOffset = ref<number[]>([ 0, 15 ])
+const fabPos = ref<string>('top')
 const layoutIcon = computed(() => {
   switch (mixerStore.layout) {
     case 1:
@@ -236,6 +240,12 @@ watch(() => mixerStore.connStatus, async (value: string) => {
       //
   }
 })
+
+const getPlaylist = () => {
+  mixerStore.conn.conn.sendMessage('MEDIA_GET_PLISTS')
+  mixerStore.conn.conn.sendMessage('NETCONFIG')
+  mixerStore.getPlayerPlaylist()
+}
 watch(() => mixerStore.layout, (value:number|string) => {
   // if (value === 'Custom'){
   //   //TODO: Create a custom layout by the user
@@ -247,6 +257,8 @@ watch(() => mixerStore.layout, (value:number|string) => {
 
 onMounted(async () => {
   await mixerStore.uiConnect()
+  await midiStore.initSavedMidiDevice()
+  $q.platform.is.mobile ? fabPos.value = 'top-left' : null
 })
 const layouts = [
   {

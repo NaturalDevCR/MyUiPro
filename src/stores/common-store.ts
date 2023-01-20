@@ -14,13 +14,15 @@ export const useCommonStore = defineStore('commonStore', {
     //
   },
   persist: {
-    enabled: true,
-    strategies: [
-      {
-        key: 'commonStorage',
-        storage: localStorage,
-        paths: ['lang'],
-      },
-    ],
+    storage: localStorage,
+    paths: ['lang'],
+    // enabled: true,
+    // strategies: [
+    //   {
+    //     key: 'commonStorage',
+    //     storage: localStorage,
+    //     paths: ['lang'],
+    //   },
+    // ],
   },
 });

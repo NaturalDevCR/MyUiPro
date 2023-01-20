@@ -1,7 +1,9 @@
 import { defineStore } from 'pinia';
 import { SoundcraftUI } from 'soundcraft-ui-connection';
-import {isAllowedURL, isValidMixerIp, reload} from 'src/utils/helpers';
+import {DBToGainValue, dbToVelocity, gainValueToDB, isAllowedURL, isValidMixerIp, reload} from 'src/utils/helpers';
 import { map, filter, first } from 'rxjs/operators'
+import {useMidiStore} from 'stores/midi-store';
+import {gainMessages} from 'src/utils/constants';
 export const useMixerStore = defineStore('mixerStore', {
   state: () => ({
     isDemoMode: <boolean>false,
@@ -20,7 +22,7 @@ export const useMixerStore = defineStore('mixerStore', {
     },
     layout: <string|number>1,
     ip: '',
-
+    channelNames: <any>{},
     mixerSettings: {
       muteGroups: {
         master: false,
@@ -29,6 +31,7 @@ export const useMixerStore = defineStore('mixerStore', {
         grp2: false,
       },
       player: {
+        playlists: [],
         currentState: 0,
         currentPlaylist: '',
         currentTrack: '',
@@ -71,9 +74,24 @@ export const useMixerStore = defineStore('mixerStore', {
         this.mixerInfo.model = val.toUpperCase()
       })
     },
+    getPlayerPlaylist() {
+      const playlists$ = this.conn.conn.allMessages$.pipe(
+        map((state:any) => state),
+        filter((e:any) => !!e && e.substring(0, 7) === 'PLISTS^'),
+        first()
+      );
+
+      playlists$.subscribe((val:any) => {
+        console.log(val)
+      })
+
+    },
     getMixerPassword() {
+      // this.conn.store.state$.subscribe((val:any) => {
+      //   console.log(val['settings.block.pass'])
+      // })
       const password$ = this.conn.store.state$.pipe(
-        map((state:any) => state.settings.block.pass),
+        map((state:any) => state['settings.block.pass']),
         filter(e => !!e),
         first()
       );
@@ -91,7 +109,7 @@ export const useMixerStore = defineStore('mixerStore', {
         this.mixerInfo.firmware = val
       })
     },
-    uiConnect() {
+    async uiConnect() {
       if (isValidMixerIp(this.ip)){
         if (isAllowedURL(this.ip)){
           this.isDemoMode = true
@@ -101,7 +119,7 @@ export const useMixerStore = defineStore('mixerStore', {
           this.conn.status$.subscribe((status:any) => {
             this.connStatus = status.type
           });
-          this.conn.connect()
+          await this.conn.connect()
           this.getUiModel()
           this.getFirmwareVersion()
         }
@@ -117,7 +135,7 @@ export const useMixerStore = defineStore('mixerStore', {
       this.ip = '';
       this.mixerModel = '';
       this.setupModal = true
-      // reload(true)
+      reload(true)
     },
     muteGroup(type:string) {
       this.conn.muteGroup(type).mute()
@@ -125,6 +143,40 @@ export const useMixerStore = defineStore('mixerStore', {
     unMuteGroup(type:string) {
       this.conn.muteGroup(type).unmute()
     },
+
+    setFaderLevel(dbValue: number, type:string, channel:number|null = null) {
+      switch (type) {
+        case 'master':
+          this.conn.master.setFaderLevelDB(dbValue)
+          break
+        case 'input':
+          this.conn.master.input(channel! + 1).setFaderLevelDB(dbValue)
+          break
+        case 'gain':
+          if (this.mixerInfo.model === 'UI24'){
+            this.conn.hw(channel! + 1).setGainDB(dbValue)
+          }else {
+            // console.log(dbValue)
+            //Workaround for Ui12 & Ui16
+            this.conn.conn.sendMessage(`SETD^i.${channel}.gain^${DBToGainValue(dbValue)}`)
+          }
+          break
+        default:
+          return null
+      }
+    },
+    setToggle(value:number, type:string, channel:number|null = null) {
+      switch (type) {
+        case 'hiz':
+          console.log('got here')
+          console.log(value)
+          this.conn.conn.sendMessage(`SETD^i.${channel}.hiz^${value}`)
+          break
+        default:
+          return null
+      }
+    },
+
     playerActions(action: string) {
       switch (true) {
         case action === 'play':
@@ -148,29 +200,73 @@ export const useMixerStore = defineStore('mixerStore', {
     },
 
     async listeners() {
+      const midiStore = useMidiStore()
       // this.getRawStream()
-      //Master Fader Level DB
-      // this.conn.master.faderLevelDB$.subscribe((value:any) => {
-      //   console.log(value)
-      // });
-      // this.conn.store.messages$.subscribe((val:any) => {
-      //   // console.log(val)
+      // Master Fader Level DB
+      if (midiStore.currentMidiMapping.masterVolume.mapping){
+        this.conn.master.faderLevelDB$.subscribe((value:any) => {
+          midiStore.sendMidiMessage(value, 'masterVolume')
+        });
+      }
+      if (midiStore.inputUIDs.length){
+        for (let i = 0; i < midiStore.inputUIDs.length; i++){
+          const target = midiStore.findObjectByUID(midiStore.currentMidiMapping, midiStore.inputUIDs[i])
+
+          if (target.type === 'input'){
+            this.conn.master.input(target.number + 1).faderLevelDB$.subscribe((value:any) => {
+              if (!midiStore.activeInput) midiStore.sendMidiMessage(value, 'masterInput', target.number)
+            })
+          }
+
+          if (target.type === 'gain'){
+            if (this.mixerInfo.model === 'UI24'){
+              this.conn.hw(target.number + 1).gainDB$.subscribe((value:any) => {
+                // console.log('gain', value, target)
+                if (!midiStore.activeInput) midiStore.sendMidiMessage(value, 'gainInput', target.number)
+              })
+            }else {
+              // const gain$ = this.conn.conn.allMessages$.pipe(
+              //   map((state:any) => state),
+              //   filter((e:any) => gainMessages.includes(e.substring(0, 14)) || gainMessages.includes(e.substring(0, 15))),
+              //   // first()
+              // );
+              //
+              // gain$.subscribe((val:any) => {
+              //   midiStore.sendMidiMessage(dbToVelocity(gainValueToDB(val), 'gain'), 'gainInput', target.number)
+              // })
+            }
+          }
+        }
+      }
+
+      // if (midiStore.currentMidiMapping.masterInput0.mapping){
+      //   this.conn.master.input(1).faderLevelDB$.subscribe((value:any) => {
+      //     midiStore.sendMidiMessage(value, 'masterInput', 0)
+      //   });
+      // }
+
+
+      // this.conn.master.input(1).name$.subscribe((val:string) => {
+      //   this.channelNames.masterInput1 = val
       // })
 
-      // this.conn.store.conn.allMessages$.subscribe((val:any) => {
-      //   const msg = val.substring(0, 5)
-      //   const ignoreMsgs = ['VU2^D', 'RTA^A', 'SETD^', 'SETS^']
-      //   if (!ignoreMsgs.includes(msg)){
-      //     console.log(val)
-      //   }
-      //
-      // })
+      const inputNames$ = this.conn.store.state$.pipe(
+        map((state:any) => Object.entries(state)
+          .filter(([key]) => key.startsWith('i.') && key.endsWith('.name'))
+          .map(([key, value]) => ({
+            name: value,
+            number: key.split('.')[1],
+          }))
+        ),
+        filter(name => !!name)
+      );
 
-      // this.conn.store.state$.subscribe((value:any) => {
-      //   if (!this.mixerModel){
-      //     this.mixerModel = value.model
-      //   }
-      // })
+      inputNames$.subscribe((val:string[]) => {
+        // console.log(val)
+        val.forEach((input:any) => {
+          this.channelNames[`masterInput${input.number}`] = input.name
+        })
+      })
 
       //Master Mute
       this.conn.muteGroup('all').state$.subscribe((value:number) => {
@@ -211,13 +307,7 @@ export const useMixerStore = defineStore('mixerStore', {
     }
   },
   persist: {
-    enabled: true,
-    strategies: [
-      {
-        key: 'mixerStorage',
-        storage: localStorage,
-        paths: ['ip', 'mixerModel', 'layout'],
-      },
-    ],
+    storage: localStorage,
+    paths: ['ip', 'layout'],
   },
 });
