@@ -2,7 +2,7 @@
   <q-dialog
     v-model="mixerStore.setupModal"
     :maximized="$q.platform.is.mobile"
-    :persistent="mixerStore.connStatus !== 'OPEN'"
+    :persistent="mixerStore.isConnected"
     transition-show="slide-down"
     transition-hide="slide-up"
   >
@@ -38,7 +38,7 @@
               </div>
             </div>
           </q-card-section>
-          <q-card-section v-if="mixerStore.connStatus === 'OPEN'" class="row justify-center">
+          <q-card-section v-if="mixerStore.isConnected" class="row justify-center">
             <q-btn class="col-12 col-md-6" label="Show master password" color="red" @click="getMasterPassword" />
             <div v-show="showMasterPassword" class="text-center col-12 q-my-md">Your master password is: </div>
             <div v-show="showMasterPassword" class="text-center col-12 text-bold text-h6">{{mixerStore.mixerPassword}} </div>
@@ -81,7 +81,7 @@ const getMasterPassword = () => {
 }
 const finishSetup = () => {
   mixerStore.setupModal = false;
-  if (mixerStore.connStatus !== 'OPEN' || mixerIPHasChanged.value){
+  if (mixerStore.isConnected || mixerIPHasChanged.value){
     mixerStore.uiConnect()
   }
 

@@ -49,6 +49,7 @@ export const useMixerStore = defineStore('mixerStore', {
     }
   }),
   getters: {
+    isConnected: (state) => state.connStatus === 'OPEN',
     mixerSrc: (state) => state.isDemoMode ? state.ip : `http://${state.ip}/mixer.html?ID`,
     masterMute: state => state.mixerSettings.muteGroups.master,
     muteAllFxStatus: state => state.mixerSettings.muteGroups.fx,

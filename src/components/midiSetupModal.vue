@@ -52,7 +52,7 @@
           <q-card-section class="col-12">
             <q-separator class="q-my-lg" dark />
           </q-card-section>
-          <q-card-section v-if="!!midiStore.selectedDevice.id" class="col-12 row justify-center content-center items-center">
+          <q-card-section v-if="!!midiStore.selectedDevice.id && mixerStore.isConnected" class="col-12 row justify-center content-center items-center">
             <q-table
               flat
               bordered

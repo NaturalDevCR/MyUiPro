@@ -1,5 +1,5 @@
 <template>
-  <div class="disable-hardware-acceleration" :class="disableClass" v-if="mixerStore.ip && isIPv4(mixerStore.ip) && mixerStore.connStatus === 'OPEN'  || mixerStore.isDemoMode">
+  <div class="disable-hardware-acceleration" :class="disableClass" v-if="mixerStore.ip && isIPv4(mixerStore.ip) && mixerStore.isConnected  || mixerStore.isDemoMode">
     <div class="q-pa-xs" v-if="mixerStore.layout === 1" :style="{height: `calc(100vh - ${commonStore.barSize})`}">
       <div class="parent" style="height: 100%">
         <iframe :allowFullScreen="false" ref="mixer1" id="mixer01" class="full-width" :src="mixerStore.mixerSrc" />

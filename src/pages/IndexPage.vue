@@ -126,7 +126,7 @@
         </div>
       </div>
       <q-space />
-      <q-icon v-show="!$q.platform.is.mobile && !mixerStore.showPlayerControls" class="q-mr-md" v-if="mixerStore.connStatus === 'OPEN'" color="green" name="mdi-wifi-check" />
+      <q-icon v-show="!$q.platform.is.mobile && !mixerStore.showPlayerControls" class="q-mr-md" v-if="mixerStore.isConnected" color="green" name="mdi-wifi-check" />
       <q-icon v-show="!$q.platform.is.mobile && !mixerStore.showPlayerControls" class="q-mr-md" v-else color="red" name="mdi-wifi-off" />
       <q-fab
         padding="10px"
