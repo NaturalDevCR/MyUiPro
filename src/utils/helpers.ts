@@ -89,7 +89,7 @@ export function clamp(value: number, min: number, max: number): number {
 }
 /**
  * Convert gain from dB to linear float value between 0 and 1
- * @param value gain value in dB
+ * @param gain
  */
 export function DBToGainValue(gain: number): number {
   const result = (gain + 6) / 63;

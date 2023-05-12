@@ -181,7 +181,7 @@ const $q = useQuasar()
 
 const hideBar = ref<boolean>(false)
 const fabOffset = ref<number[]>([ 0, 15 ])
-const fabPos = ref<string>('top')
+const fabPos = ref<any>('top')
 const layoutIcon = computed(() => {
   switch (mixerStore.layout) {
     case 1:
