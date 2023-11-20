@@ -1,6 +1,6 @@
 {
   "name": "my-ui-pro",
-  "version": "1.0.17",
+  "version": "1.0.18",
   "description": "Soundcraft Ui Multiframe Wrapper",
   "productName": "My Ui Pro",
   "author": "Josue Orozco A. <35145882+NaturalDevCR@users.noreply.github.com>",
@@ -18,30 +18,30 @@
     "test": "echo \"No test specified\" && exit 0"
   },
   "dependencies": {
-    "@quasar/extras": "^1.16.2",
-    "@vueuse/core": "^9.13.0",
-    "is-ip": "^5.0.0",
-    "pinia": "^2.0.34",
-    "pinia-plugin-persistedstate": "^3.1.0",
-    "quasar": "^2.11.10",
-    "soundcraft-ui-connection": "^1.5.0",
-    "vue": "^3.2.47",
+    "@quasar/extras": "^1.16.8",
+    "@vueuse/core": "^10.6.1",
+    "is-ip": "^5.0.1",
+    "pinia": "^2.1.7",
+    "pinia-plugin-persistedstate": "^3.2.0",
+    "quasar": "^2.14.0",
+    "soundcraft-ui-connection": "^2.1.0",
+    "vue": "^3.3.8",
     "vue-country-flag-next": "^2.3.2",
-    "vue-i18n": "^9.3.0-beta.17",
-    "vue-router": "^4.1.6",
-    "vue3-slider": "^1.8.0",
-    "webmidi": "^3.1.5"
+    "vue-i18n": "^9.7.0",
+    "vue-router": "^4.2.5",
+    "vue3-slider": "^1.9.0",
+    "webmidi": "^3.1.6"
   },
   "devDependencies": {
     "@intlify/vite-plugin-vue-i18n": "^7.0.0",
-    "@quasar/app-vite": "^1.2.1",
+    "@quasar/app-vite": "^1.7.0",
     "@types/node": "^18.11.18",
     "@typescript-eslint/eslint-plugin": "^5.48.2",
     "@typescript-eslint/parser": "^5.48.2",
     "autoprefixer": "^10.4.13",
-    "electron": "^24.1.1",
-    "electron-builder": "^24.2.0",
-    "electron-packager": "^17.1.1",
+    "electron": "^27.1.0",
+    "electron-builder": "^24.6.4",
+    "electron-packager": "^17.1.2",
     "eslint": "^8.32.0",
     "eslint-config-prettier": "^8.6.0",
     "eslint-plugin-vue": "^9.9.0",
@@ -58,7 +58,7 @@
     "workbox-strategies": "^6.5.4"
   },
   "engines": {
-    "node": "^18 || ^16 || ^14.19",
+    "node": "^18 || ^16 || ^20.8.0",
     "npm": ">= 6.13.4",
     "yarn": ">= 1.21.1"
   }
