@@ -8,6 +8,8 @@
 // Configuration for your app
 // https://v2.quasar.dev/quasar-cli-vite/quasar-config-js
 const { viteSingleFile } = require('vite-plugin-singlefile')
+const { nodePolyfills } = require('vite-plugin-node-polyfills')
+
 
 const { configure } = require('quasar/wrappers');
 const path = require('path');
@@ -67,7 +69,7 @@ module.exports = configure(function (/* ctx */) {
         node: 'node16'
       },
 
-      vueRouterMode: 'history', // available values: 'hash', 'history'
+      vueRouterMode: 'hash', // available values: 'hash', 'history'
       // vueRouterBase,
       // vueDevtools,
       // vueOptionsAPI: false,
@@ -90,7 +92,7 @@ module.exports = configure(function (/* ctx */) {
 
       vitePlugins: [
         viteSingleFile(), //To create a single file and run the app without a web server // Remember to fix assets routes from / to ./ directly in the html file
-
+        nodePolyfills(),
         ['@intlify/vite-plugin-vue-i18n', {
           // if you want to use Vue I18n Legacy API, you need to set `compositionOnly: false`
           // compositionOnly: false,
