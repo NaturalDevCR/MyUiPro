@@ -1,6 +1,6 @@
 {
   "name": "my-ui-pro",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "Soundcraft Ui Multiframe Wrapper",
   "productName": "My Ui Pro",
   "author": "Josue Orozco A. <35145882+NaturalDevCR@users.noreply.github.com>",
@@ -13,8 +13,8 @@
     "create-all-arm-binaries": "quasar build -m electron -T all",
     "build-mac-universal": "quasar build -m electron -T darwin -A universal",
     "build-win64": "quasar build -m electron -T win32 -A x64",
-    "build-spa": "quasar clean && quasar build -m spa",
-    "build-bex": "quasar clean && quasar build -m bex",
+    "build-spa": "quasar clean && quasar build -m spa --single-file",
+    "build-bex": "quasar clean && quasar build -m bex --node-pollyfills",
     "format": "prettier --write \"**/*.{js,ts,vue,scss,html,md,json}\" --ignore-path .gitignore",
     "test": "echo \"No test specified\" && exit 0"
   },

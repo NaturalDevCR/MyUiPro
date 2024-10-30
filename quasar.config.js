@@ -15,6 +15,8 @@ const { configure } = require('quasar/wrappers');
 const path = require('path');
 
 module.exports = configure(function (/* ctx */) {
+  const isSpaSingleFile = process.argv.includes('--single-file');
+  const isNodePollyfills = process.argv.includes('--node-pollyfills');
   return {
     eslint: {
       // fix: true,
@@ -91,8 +93,8 @@ module.exports = configure(function (/* ctx */) {
       // viteVuePluginOptions: {},
 
       vitePlugins: [
-        viteSingleFile(), //To create a single file and run the app without a web server // Remember to fix assets routes from / to ./ directly in the html file
-        nodePolyfills(),
+        ...(isSpaSingleFile ? [viteSingleFile()] : []),  // Se añade el plugin si se está en modo de producción para una SPA
+        ...(isNodePollyfills ? [nodePolyfills()] : []),  // Se añade el plugin si se está en modo de producción para una SPA
         ['@intlify/vite-plugin-vue-i18n', {
           // if you want to use Vue I18n Legacy API, you need to set `compositionOnly: false`
           // compositionOnly: false,
