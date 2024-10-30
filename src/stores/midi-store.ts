@@ -373,7 +373,7 @@ export const useMidiStore = defineStore('midiStore', {
     listenForMidiMessages(deviceID:string) {
       const mixerStore = useMixerStore()
       if (WebMidi.inputs.length && WebMidi.inputs.some((x:any) => x.id === deviceID)){
-        WebMidi.getInputById(deviceID).addListener("midimessage", (e:any) => {
+        WebMidi.getInputById(deviceID).addListener('midimessage', (e:any) => {
           const velocity = e.data[2]
           //Set the mapping for each control
           if (this.currentlyListeningTo) {

@@ -5,7 +5,12 @@ export const useCommonStore = defineStore('commonStore', {
   state: () => ({
     lang: <null|string>null,
     version: app.version,
-    barSize: '55px',
+    isDarkMode: true,
+    barSize: '45px',
+    modal: {
+      layoutSelector: false,
+      player: false
+    }
   }),
   getters: {
     //

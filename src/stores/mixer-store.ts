@@ -116,11 +116,22 @@ export const useMixerStore = defineStore('mixerStore', {
           this.isDemoMode = true
         }else {
           this.isDemoMode = false
-          this.conn = new SoundcraftUI(this.ip)
+          console.log(this.ip)
+          this.conn = new SoundcraftUI({
+            targetIP: this.ip,
+            webSocketCtor: WebSocket,
+          });
+          // this.conn = new SoundcraftUI(this.ip)
           this.conn.status$.subscribe((status:any) => {
+            console.log(status)
             this.connStatus = status.type
           });
-          await this.conn.connect()
+          console.log(this.conn)
+          try {
+            await this.conn.connect()
+          } catch (e) {
+            console.log(JSON.stringify(e))
+          }
           this.getUiModel()
           this.getFirmwareVersion()
         }

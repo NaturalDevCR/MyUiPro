@@ -147,7 +147,7 @@
       </div>
     </div>
   </div>
-  <div v-else :style="{height: `calc(100vh - ${commonStore.barSize})`}" class="bg-red text-white text-center q-pa-md flex flex-center">
+  <div v-else :style="{height: `calc(100vh - ${commonStore.barSize})`}" class="bg-dark text-white text-center q-pa-md flex flex-center">
     <div>
       <div style="font-size: 30vh">
         <q-icon name="mdi-alert-remove-outline" color="white" />
@@ -158,7 +158,7 @@
       </div>
 
       <q-btn
-        @click="reload"
+        @click="reload(true)"
         size="xl"
         class="q-mt-xl"
         color="white"
