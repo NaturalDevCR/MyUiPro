@@ -65,7 +65,7 @@
         <q-fab-action @click="reload(false)" icon="mdi-reload" color="dark">
           <q-tooltip class="bg-teal" anchor="center left" self="center right" :offset="[10, 10]">{{$t('misc.reload')}}</q-tooltip>
         </q-fab-action>
-        <q-fab-action @click="midiStore.midiSetupModal = true" icon="mdi-midi" color="green">
+        <q-fab-action v-if="$q.platform.is.desktop" @click="midiStore.midiSetupModal = true" icon="mdi-midi" color="green">
           <q-tooltip class="bg-teal" anchor="center left" self="center right" :offset="[10, 10]">{{$t('misc.midiSettings')}}</q-tooltip>
         </q-fab-action>
       </q-fab>

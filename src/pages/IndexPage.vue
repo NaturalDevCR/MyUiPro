@@ -9,42 +9,15 @@ import {computed, onMounted, ref, watch} from 'vue'
 import {useMixerStore} from 'stores/mixer-store';
 import {useQuasar} from 'quasar';
 import {useI18n} from 'vue-i18n';
-import {useCommonStore} from 'stores/common-store';
-import {reload} from 'src/utils/helpers';
 import MultiFrames from 'components/MultiFrames.vue';
 import {useMidiStore} from 'stores/midi-store';
 
 const mixerStore = useMixerStore()
-const commonStore = useCommonStore()
 const midiStore = useMidiStore()
 const {t} = useI18n()
 const $q = useQuasar()
 
-const hideBar = ref<boolean>(false)
-const fabOffset = ref<number[]>([ 0, 15 ])
 const fabPos = ref<any>('top')
-const layoutIcon = computed(() => {
-  switch (mixerStore.layout) {
-    case 1:
-      return 'mdi-numeric-1-box'
-    case 2:
-      return 'mdi-numeric-2-box-multiple'
-    case 3.1:
-      return 'mdi-numeric-3-box-multiple'
-    case 3.2:
-      return 'mdi-numeric-3-box-multiple-outline'
-    case 4:
-      return 'mdi-numeric-4-box-multiple'
-    case 5.1:
-      return 'mdi-numeric-5-box-multiple'
-    case 5.2:
-      return 'mdi-numeric-5-box-multiple-outline'
-    case 5.3:
-      return 'mdi-numeric-5-box'
-    default:
-      return 'mdi-view-grid-plus'
-  }
-})
 
 watch(() => mixerStore.connStatus, async (value: string) => {
   switch (true) {
@@ -98,8 +71,10 @@ watch(() => mixerStore.layout, (value:number|string) => {
 
 onMounted(async () => {
   await mixerStore.uiConnect()
-  await midiStore.initSavedMidiDevice()
-  $q.platform.is.mobile ? fabPos.value = 'top-left' : null
+  if ($q.platform.is.desktop){
+    midiStore.initSavedMidiDevice()
+  }
+  $q.platform.is.mobile ? fabPos.value = 'top-center' : null
 })
 const layouts = [
   {
