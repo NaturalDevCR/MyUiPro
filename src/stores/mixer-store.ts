@@ -1,17 +1,17 @@
 import { defineStore } from 'pinia';
 import { SoundcraftUI } from 'soundcraft-ui-connection';
-import {DBToGainValue, dbToVelocity, gainValueToDB, isAllowedURL, isValidMixerIp, reload} from 'src/utils/helpers';
+import {DBToGainValue, isAllowedURL, isValidMixerIp, reload} from 'src/utils/helpers';
 import { map, filter, first } from 'rxjs/operators'
 import {useMidiStore} from 'stores/midi-store';
-import {gainMessages} from 'src/utils/constants';
+import {Loading, Notify} from 'quasar';
 export const useMixerStore = defineStore('mixerStore', {
   state: () => ({
+    reconnectionCounter: 0,
     isDemoMode: <boolean>false,
     analogUi16Modal: <boolean>true,
     setupModal: <boolean> false,
     shortcutsModal: <boolean> false,
     showPlayerControls: <boolean> false,
-    layoutsEditModal: <boolean> true,
     conn: <any> null,
     connStatus: '',
     mixerModel: '',
@@ -20,7 +20,6 @@ export const useMixerStore = defineStore('mixerStore', {
       model: '',
       firmware: '',
     },
-    layout: <string|number>1,
     ip: '',
     channelNames: <any>{},
     mixerSettings: {
@@ -58,22 +57,33 @@ export const useMixerStore = defineStore('mixerStore', {
         const h = Math.floor(e / 3600).toString().padStart(2,'0'),
           m = Math.floor(e % 3600 / 60).toString().padStart(2,'0'),
           s = Math.floor(e % 60).toString().padStart(2,'0');
-
         return h + ':' + m + ':' + s;
       }
       return secondsToTime(state.mixerSettings.player.currentElapsedTime)
-    }
+    },
   },
   actions: {
     getUiModel() {
-      const model$ = this.conn.store.state$.pipe(
-        map((state:any) => state.model),
-        filter(e => !!e),
-        first()
-      );
-      model$.subscribe((val:string) => {
-        this.mixerInfo.model = val.toUpperCase()
-      })
+      // const model$ = this.conn.store.state$.pipe(
+      //   map((state:any) => state.model),
+      //   filter(e => !!e),
+      //   first()
+      // );
+      // model$.subscribe((val:string) => {
+      //   this.mixerInfo.model = val.toUpperCase()
+      // })
+      return this.conn.deviceInfo.model
+    },
+    getFirmwareVersion() {
+      // const firmware$ = this.conn.store.state$.pipe(
+      //   map((state:any) => state.firmware),
+      //   filter(e => !!e),
+      //   first()
+      // );
+      // firmware$.subscribe((val:string) => {
+      //   this.mixerInfo.firmware = val
+      // })
+      return this.conn.deviceInfo.firmware$
     },
     getPlayerPlaylist() {
       const playlists$ = this.conn.conn.allMessages$.pipe(
@@ -83,71 +93,107 @@ export const useMixerStore = defineStore('mixerStore', {
       );
 
       playlists$.subscribe((val:any) => {
-        console.log(val)
+        console.log(val);
       })
-
     },
     getMixerPassword() {
-      // this.conn.store.state$.subscribe((val:any) => {
-      //   console.log(val['settings.block.pass'])
-      // })
       const password$ = this.conn.store.state$.pipe(
         map((state:any) => state['settings.block.pass']),
         filter(e => !!e),
         first()
       );
       password$.subscribe((val:string) => {
-        this.mixerPassword = val
-      })
+        this.mixerPassword = val;
+      });
     },
-    getFirmwareVersion() {
-      const firmware$ = this.conn.store.state$.pipe(
-        map((state:any) => state.firmware),
-        filter(e => !!e),
-        first()
-      );
-      firmware$.subscribe((val:string) => {
-        this.mixerInfo.firmware = val
-      })
+    async uiStatusObserver() {
+      const observer = this.conn.status$.subscribe((status:any) => {
+        console.log(status.type)
+        this.connStatus = status.type;
+
+        switch (status.type) {
+          case 'OPENING':
+            Loading.show({
+              message: 'Connecting'
+            });
+            Loading.hide()
+            break
+          case 'RECONNECTING':
+            this.reconnectionCounter++
+            Loading.show({
+              message: 'An error happened... retrying connection'
+            });
+            Loading.hide()
+            break
+          case 'CLOSING':
+            Loading.show({
+              message: 'Disconnecting'
+            });
+            break
+          case 'CLOSE':
+            Loading.hide();
+            //
+            break
+          case 'ERROR':
+            console.log(status);
+            // unsubscribe()
+            Notify.create({
+              message: "Couldn't connect to your mixer, check your network connection",
+              type: 'negative',
+              position: 'center',
+              timeout: 1000,
+            },);
+            Loading.hide();
+            if (this.reconnectionCounter >= 5){
+              observer.unsubscribe();
+              this.uiDisconnect(false);
+            }
+            break
+          default:
+            // Connection is "OPEN"
+            console.log(status.type)
+            this.reconnectionCounter = 0
+            this.getUiModel();
+            this.getFirmwareVersion();
+            this.listeners();
+            this.setupModal = false;
+            Loading.hide();
+            break
+        }
+
+      });
     },
     async uiConnect() {
-      if (isValidMixerIp(this.ip)){
-        if (isAllowedURL(this.ip)){
-          this.isDemoMode = true
-        }else {
-          this.isDemoMode = false
-          console.log(this.ip)
-          this.conn = new SoundcraftUI({
-            targetIP: this.ip,
-            webSocketCtor: WebSocket,
-          });
-          // this.conn = new SoundcraftUI(this.ip)
-          this.conn.status$.subscribe((status:any) => {
-            console.log(status)
-            this.connStatus = status.type
-          });
-          console.log(this.conn)
-          try {
-            await this.conn.connect()
-          } catch (e) {
-            console.log(JSON.stringify(e))
-          }
-          this.getUiModel()
-          this.getFirmwareVersion()
-        }
-      }else {
-        this.setupModal = true
+      if (!isValidMixerIp(this.ip)) {
+        this.setupModal = true;
+        return;
       }
 
+      this.isDemoMode = isAllowedURL(this.ip);
+
+      if (this.isDemoMode) {
+        this.setupModal = false
+        return;
+      }
+
+      this.conn = new SoundcraftUI({
+        targetIP: this.ip,
+        webSocketCtor: WebSocket,
+      });
+
+      await this.uiStatusObserver();
+      await this.conn.connect();
     },
-    uiDisconnect() {
+    uiDisconnect(reset = true) {
       if (!this.isDemoMode){
         this.conn.disconnect()
       }
-      this.ip = '';
-      this.mixerModel = '';
       this.setupModal = true
-      reload(true)
+      if (reset){
+        this.ip = '';
+        reload(true)
+      }
+
     },
     muteGroup(type:string) {
       this.conn.muteGroup(type).mute()
@@ -180,7 +226,6 @@ export const useMixerStore = defineStore('mixerStore', {
     setToggle(value:number, type:string, channel:number|null = null) {
       switch (type) {
         case 'hiz':
-          console.log('got here')
           console.log(value)
           this.conn.conn.sendMessage(`SETD^i.${channel}.hiz^${value}`)
           break
@@ -211,7 +256,29 @@ export const useMixerStore = defineStore('mixerStore', {
       this.conn.recorderDualTrack.recordToggle()
     },
 
-    async listeners() {
+    playerListeners() {
+      //Get Player State
+      this.conn.player.state$.subscribe((value:number) => {
+        this.mixerSettings.player.currentState = value
+      })
+      this.conn.player.playlist$.subscribe((value: string) => {
+        this.mixerSettings.player.currentPlaylist = value
+      })
+      this.conn.player.track$.subscribe((value:string) => {
+        this.mixerSettings.player.currentTrack = value
+      })
+      this.conn.player.length$.subscribe((value:number) => {
+        this.mixerSettings.player.currentLength = value
+      })
+      this.conn.player.elapsedTime$.subscribe((value:number) => {
+        this.mixerSettings.player.currentElapsedTime = value
+      })
+      this.conn.player.remainingTime$.subscribe((value:number) => {
+        this.mixerSettings.player.currentRemainingTime = value
+      })
+    },
+
+    midiListeners() {
       const midiStore = useMidiStore()
       // this.getRawStream()
       // Master Fader Level DB
@@ -220,6 +287,7 @@ export const useMixerStore = defineStore('mixerStore', {
           midiStore.sendMidiMessage(value, 'masterVolume')
         });
       }
+
       if (midiStore.inputUIDs.length){
         for (let i = 0; i < midiStore.inputUIDs.length; i++){
           const target = midiStore.findObjectByUID(midiStore.currentMidiMapping, midiStore.inputUIDs[i])
@@ -256,8 +324,9 @@ export const useMixerStore = defineStore('mixerStore', {
       //     midiStore.sendMidiMessage(value, 'masterInput', 0)
       //   });
       // }
+    },
 
-
+    inputListeners() {
       // this.conn.master.input(1).name$.subscribe((val:string) => {
       //   this.channelNames.masterInput1 = val
       // })
@@ -274,12 +343,13 @@ export const useMixerStore = defineStore('mixerStore', {
       );
 
       inputNames$.subscribe((val:string[]) => {
-        // console.log(val)
         val.forEach((input:any) => {
           this.channelNames[`masterInput${input.number}`] = input.name
         })
       })
+    },
 
+    muteListeners() {
       //Master Mute
       this.conn.muteGroup('all').state$.subscribe((value:number) => {
         this.mixerSettings.muteGroups.master = value === 1
@@ -288,27 +358,9 @@ export const useMixerStore = defineStore('mixerStore', {
       this.conn.muteGroup('fx').state$.subscribe((value:number) => {
         this.mixerSettings.muteGroups.fx = value === 1
       })
+    },
 
-      //Get Player State
-      this.conn.player.state$.subscribe((value:number) => {
-        this.mixerSettings.player.currentState = value
-      })
-      this.conn.player.playlist$.subscribe((value: string) => {
-        this.mixerSettings.player.currentPlaylist = value
-      })
-      this.conn.player.track$.subscribe((value:string) => {
-        this.mixerSettings.player.currentTrack = value
-      })
-      this.conn.player.length$.subscribe((value:number) => {
-        this.mixerSettings.player.currentLength = value
-      })
-      this.conn.player.elapsedTime$.subscribe((value:number) => {
-        this.mixerSettings.player.currentElapsedTime = value
-      })
-      this.conn.player.remainingTime$.subscribe((value:number) => {
-        this.mixerSettings.player.currentRemainingTime = value
-      })
-
+    recorderListeners() {
       //Recorder
       this.conn.recorderDualTrack.recording$.subscribe((value:number) => {
         this.mixerSettings.recorder.dualTrack.isRecording = value === 1
@@ -316,10 +368,18 @@ export const useMixerStore = defineStore('mixerStore', {
       this.conn.recorderDualTrack.busy$.subscribe((value:number) => {
         this.mixerSettings.recorder.dualTrack.isBusy = value === 1
       })
+    },
+
+    listeners() {
+      this.playerListeners()
+      this.inputListeners()
+      this.muteListeners()
+      this.recorderListeners()
+      this.midiListeners()
     }
   },
   persist: {
     storage: localStorage,
-    paths: ['ip', 'layout'],
+    paths: ['ip'],
   },
 });

@@ -27,11 +27,11 @@ export default {
     reload: 'Recargar',
     supportMe: 'Apoyame con una donación',
     layoutChooseMsg: 'Has activado el layout de {number} pantallas',
-    disconnectedMsg: 'Ups! parece que no estás conectado a tu mixer, revisa que esté encendida, que estes conectad@ al wifi de la mixer, y que la IP de la mixer es correcta.'
+    disconnectedMsg: 'Ups! parece que no estás conectado a tu mixer, revisa que esté encendida, que estes conectado al wifi de la mixer, y que la IP de la mixer es correcta.'
   },
   shortcutsModal: {
     title: 'Soundcraft Ui - Atajos',
-    muteAllMsg: 'Segur@ que quieres silenciar todos los canales?'
+    muteAllMsg: 'Seguro que quieres silenciar todos los canales?'
   },
   setupModal: {
     title: 'Soundcraft Ui - Configuración',

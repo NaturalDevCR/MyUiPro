@@ -25,7 +25,7 @@
       </div>
       <div class="text-red text-bold" v-show="mixerStore.isDemoMode">DEMO MODE</div>
       <q-space />
-      <div style="border-color: gray; border-radius: 5px" class="row q-card--bordered q-pa-xs orientation-landscape">
+      <div style="border-color: gray; border-radius: 5px" class="row q-card--bordered absolute-center q-pa-xs orientation-landscape">
         <div v-if="!mixerStore.showPlayerControls" class="layout q-mr-xl">
           <q-btn @click="commonStore.modal.layoutSelector = true" color="dark" icon="mdi-monitor-screenshot" />
         </div>
@@ -83,110 +83,27 @@
   </q-page-container>
 </template>
 <script setup lang="ts">
-import {computed, onMounted, ref, watch} from 'vue'
+import { onMounted, ref } from 'vue'
 import {useMixerStore} from 'stores/mixer-store';
 import {useQuasar} from 'quasar';
-import {useI18n} from 'vue-i18n';
 import {useCommonStore} from 'stores/common-store';
 import {reload} from 'src/utils/helpers';
 import {useMidiStore} from 'stores/midi-store';
+import {useI18n} from 'vue-i18n';
+const { t } = useI18n()
 
 const mixerStore = useMixerStore()
 const commonStore = useCommonStore()
 const midiStore = useMidiStore()
-const {t} = useI18n()
 const $q = useQuasar()
 
 const hideBar = ref<boolean>(false)
 const fabOffset = ref<number[]>([ 0, 15 ])
 const fabPos = ref<any>('top')
 
-watch(() => mixerStore.connStatus, async (value: string) => {
-  switch (true) {
-    case value === 'OPEN':
-      $q.notify({
-        message: t(`connectionStatus.${mixerStore.connStatus}`),
-        group: true,
-        timeout: 2000,
-        position: 'bottom',
-        type: 'positive'
-      })
-      await mixerStore.listeners()
-      break
-    case value === 'OPENING':
-      $q.notify({
-        message: t(`connectionStatus.${mixerStore.connStatus}`),
-        timeout: 500,
-        group: true,
-        position: 'bottom',
-        color: 'orange',
-        icon: 'mdi-alert'
-      })
-      break
-    case value === 'CLOSE':
-      $q.notify({
-        message: t(`connectionStatus.${mixerStore.connStatus}`),
-        timeout: 500,
-        group: true,
-        position: 'bottom',
-        type: 'negative'
-      })
-      break
-    default:
-    //
-  }
-})
-
-watch(() => mixerStore.layout, (value:number|string) => {
-  // if (value === 'Custom'){
-  //   //TODO: Create a custom layout by the user
-  // }
-  $q.notify({
-    message: t('misc.layoutChooseMsg', {number: value})
-  })
-})
-
 onMounted(async () => {
   await mixerStore.uiConnect()
   midiStore.initSavedMidiDevice()
   $q.platform.is.mobile ? fabPos.value = 'top-left' : null
 })
-const layouts = [
-  {
-    label: '1',
-    value: 1,
-  },
-  {
-    label: '2',
-    value: 2,
-  },
-  {
-    label: '3 (v1)',
-    value: 3.1,
-  },
-  {
-    label: '3 (v2)',
-    value: 3.2,
-  },
-  {
-    label: '4',
-    value: 4,
-  },
-  {
-    label: '5 (v1)',
-    value: 5.1,
-  },
-  {
-    label: '5 (v2)',
-    value: 5.2,
-  },
-  {
-    label: '5 (v3)',
-    value: 5.3,
-  },
-  {
-    label: '6',
-    value: 6,
-  },
-]
 </script>

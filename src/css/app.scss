@@ -1,6 +1,8 @@
 // app global css in SCSS form
 @import './_utils.scss';
 
+@import './_scrollbar.scss';
+
 body {
   will-change: auto!important;
 }

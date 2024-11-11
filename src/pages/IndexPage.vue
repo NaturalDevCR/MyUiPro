@@ -1,117 +1,80 @@
 <template>
   <q-page class="bg-dark">
-    <MultiFrames />
+    <div v-if="showMixerContent" class="disable-hardware-acceleration" :class="disableClass">
+      <div class="q-pa-xs" :style="{height: `calc(100vh - ${commonStore.barSize})`}">
+        <IFrame />
+      </div>
+    </div>
+    <div v-else :style="{height: `calc(100vh - ${commonStore.barSize})`}" class="bg-dark text-white text-center q-pa-md flex flex-center">
+      <div>
+        <div style="font-size: 30vh">
+          <q-icon name="mdi-alert-remove-outline" color="white" />
+        </div>
+        <div class="text-h5" style="opacity:.8">
+          {{t('misc.disconnectedMsg')}}
+        </div>
+        <q-btn
+          @click="reload(true)"
+          size="xl"
+          class="q-mt-xl"
+          color="white"
+          text-color="blue"
+          unelevated
+          to="/"
+          :label="t('misc.reload')"
+          no-caps
+        />
+      </div>
+    </div>
   </q-page>
 </template>
 
 <script setup lang="ts">
-import {computed, onMounted, ref, watch} from 'vue'
+import { onMounted, ref, watch, computed } from 'vue'
 import {useMixerStore} from 'stores/mixer-store';
 import {useQuasar} from 'quasar';
 import {useI18n} from 'vue-i18n';
-import MultiFrames from 'components/MultiFrames.vue';
 import {useMidiStore} from 'stores/midi-store';
+import {reload} from 'src/utils/helpers';
+const { t } = useI18n()
 
-const mixerStore = useMixerStore()
-const midiStore = useMidiStore()
-const {t} = useI18n()
+const mixerStore = useMixerStore();
+const midiStore = useMidiStore();
+
+import {useCommonStore} from 'stores/common-store';
+import IFrame from 'components/IFrame.vue';
+const commonStore = useCommonStore();
+
 const $q = useQuasar()
 
 const fabPos = ref<any>('top')
-
-watch(() => mixerStore.connStatus, async (value: string) => {
-  switch (true) {
-    case value === 'OPEN':
-      $q.notify({
-        message: t(`connectionStatus.${mixerStore.connStatus}`),
-        group: true,
-        timeout: 2000,
-        position: 'bottom',
-        type: 'positive'
-      })
-      await mixerStore.listeners()
-      break
-    case value === 'OPENING':
-      $q.notify({
-        message: t(`connectionStatus.${mixerStore.connStatus}`),
-        timeout: 500,
-        group: true,
-        position: 'bottom',
-        color: 'orange',
-        icon: 'mdi-alert'
-      })
-      break
-    case value === 'CLOSE':
-      $q.notify({
-        message: t(`connectionStatus.${mixerStore.connStatus}`),
-        timeout: 500,
-        group: true,
-        position: 'bottom',
-        type: 'negative'
-      })
-      break
-    default:
-      //
-  }
-})
 
 const getPlaylist = () => {
   mixerStore.conn.conn.sendMessage('MEDIA_GET_PLISTS')
   mixerStore.conn.conn.sendMessage('NETCONFIG')
   mixerStore.getPlayerPlaylist()
 }
-watch(() => mixerStore.layout, (value:number|string) => {
-  // if (value === 'Custom'){
-  //   //TODO: Create a custom layout by the user
-  // }
-  $q.notify({
-    message: t('misc.layoutChooseMsg', {number: value})
-  })
-})
+
+const disableClass = ref<string>('');
+
+// Compute whether to show the mixer content
+const showMixerContent = computed(() =>
+  true
+  // mixerStore.isConnected || mixerStore.isDemoMode
+);
 
 onMounted(async () => {
-  await mixerStore.uiConnect()
+  console.log(document.location.host)
+  if (mixerStore.ip) {
+    await mixerStore.uiConnect()
+  }
+
   if ($q.platform.is.desktop){
     midiStore.initSavedMidiDevice()
   }
   $q.platform.is.mobile ? fabPos.value = 'top-center' : null
+
+  disableClass.value = 'disable';
+
 })
-const layouts = [
-  {
-    label: '1',
-    value: 1,
-  },
-  {
-    label: '2',
-    value: 2,
-  },
-  {
-    label: '3 (v1)',
-    value: 3.1,
-  },
-  {
-    label: '3 (v2)',
-    value: 3.2,
-  },
-  {
-    label: '4',
-    value: 4,
-  },
-  {
-    label: '5 (v1)',
-    value: 5.1,
-  },
-  {
-    label: '5 (v2)',
-    value: 5.2,
-  },
-  {
-    label: '5 (v3)',
-    value: 5.3,
-  },
-  {
-    label: '6',
-    value: 6,
-  },
-]
 </script>

@@ -396,3 +396,10 @@ export const gainMessages = [
   'SETD^i.22.gain^',
   'SETD^i.23.gain^',
 ]
+
+export const allowedURLs:Array<string> = [
+  'https://soundcraft.com/ui-demo/mixer.html', // Ui12 / Ui16
+  'https://www.soundcraft.com/ui-demo/mixer.html', // Ui12 / Ui16
+  'https://soundcraft.com/ui24-software-demo/mixer.html', // Ui24r
+  'https://www.soundcraft.com/ui24-software-demo/mixer.html' // Ui24r
+]

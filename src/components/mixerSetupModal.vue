@@ -2,8 +2,9 @@
   <q-dialog
     v-model="mixerStore.setupModal"
     :maximized="$q.platform.is.mobile"
-    :persistent="mixerStore.isConnected"
+    :persistent="!mixerStore.isConnected"
     transition-show="slide-down"
+    backdrop-filter="blur(50px)"
     transition-hide="slide-up"
   >
     <q-card style="background: #343434" class="text-white">
@@ -22,24 +23,42 @@
             <div class="row justify-center items-center text-center">
               <div class="col-6">
                 <q-input
-                  @change="mixerIPHasChanged = true"
+                  :disable="mixerStore.isConnected"
                   outlined
                   input-class="text-center text-h5"
                   :rules="[val => !!val || $t('validation.required'), val => isValidMixerIp(mixerStore.ip) || $t('validation.invalidIP')]"
                   dark
                   v-model="mixerStore.ip"
-                  label="Mixer IP"
+                  label="Mixer IP address"
                   color="teal"
                 />
               </div>
+              <div class="q-gutter-sm col-12">
+                <q-radio :disable="mixerStore.isConnected" v-model="mixerStore.ip" val="10.10.1.1" label="WiFi (Default)" color="teal">
+                  <q-tooltip>10.10.1.1 (Default When connected to your Mixer's Wifi)</q-tooltip>
+                </q-radio>
+                <q-radio :disable="mixerStore.isConnected" v-model="mixerStore.ip" val="10.10.2.1" label="Wired (Default)" color="orange">
+                  <q-tooltip>10.10.2.1 (Default When connected to your Mixer's ethernet port directly)</q-tooltip>
+                </q-radio>
+                <q-radio :disable="mixerStore.isConnected" v-model="mixerStore.ip" val="" label="Use your own" color="red">
+                  <q-tooltip>If you're using an external router (Recomended), you have to set your own mixer's IP based on your router configuration</q-tooltip>
+                </q-radio>
+              </div>
+              <div class="col-12 q-mt-sm">
+                <q-separator spaced />
+              </div>
+
               <div class="q-pa-md">{{$t('setupModal.advice')}}</div>
               <div class="col-12 col-md-12 text-center q-mt-md q-pa-md">
-                <q-btn :disable="!isValidMixerIp(mixerStore.ip)" icon="mdi-connection" :label="$t('misc.connect')" @click="finishSetup" color="teal" />
+                <q-btn v-if="!mixerStore.isConnected" :disable="!isValidMixerIp(mixerStore.ip)" icon="mdi-connection" :label="$t('misc.connect')" @click="finishSetup" color="teal" />
+                <q-btn v-else icon="mdi-connection" label="Disconnect" @click="mixerStore.uiDisconnect()" color="negative" />
               </div>
             </div>
           </q-card-section>
-          <q-card-section v-if="mixerStore.isConnected" class="row justify-center">
-            <q-btn class="col-12 col-md-6" label="Show master password" color="red" @click="getMasterPassword" />
+          <q-card-section class="row justify-center">
+            <q-btn :disable="!mixerStore.isConnected" class="col-12 col-md-6" label="Show master password" color="teal" @click="getMasterPassword">
+              <q-tooltip v-if="!mixerStore.isConnected">You need to connect to your mixer first</q-tooltip>
+            </q-btn>
             <div v-show="showMasterPassword" class="text-center col-12 q-my-md">Your master password is: </div>
             <div v-show="showMasterPassword" class="text-center col-12 text-bold text-h6">{{mixerStore.mixerPassword}} </div>
           </q-card-section>
@@ -67,7 +86,6 @@ import {ref} from 'vue'
 const mixerStore = useMixerStore()
 const commonStore = useCommonStore()
 const $q = useQuasar()
-const mixerIPHasChanged = ref<boolean>(false)
 const showMasterPassword = ref<boolean>(false)
 
 import { isValidMixerIp } from 'src/utils/helpers';
@@ -79,11 +97,11 @@ const getMasterPassword = () => {
   mixerStore.getMixerPassword()
   showMasterPassword.value = !showMasterPassword.value
 }
-const finishSetup = () => {
-  mixerStore.setupModal = false;
-  if (mixerStore.isConnected || mixerIPHasChanged.value){
-    mixerStore.uiConnect()
+const finishSetup = async () => {
+  try {
+    await mixerStore.uiConnect()
+  } catch (e) {
+    console.log(e)
   }
-
 }
 </script>

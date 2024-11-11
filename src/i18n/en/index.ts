@@ -25,7 +25,7 @@ export default {
     reload: 'Reload',
     settings: 'Settings',
     options: 'Opciones',
-    supportMe: 'Buy me a coffee',
+    supportMe: 'Support my work',
     layoutChooseMsg: "You've activated the {number} screens layout",
     disconnectedMsg: "Oops! we couldn't connect to the mixer, check that your mixer is turned on, also check if your device is connected to the mixer wifi, and finally check if the mixer IP is correct."
   },

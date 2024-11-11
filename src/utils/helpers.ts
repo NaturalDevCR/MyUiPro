@@ -1,12 +1,7 @@
 import {isIPv4} from 'is-ip';
 import {Platform} from 'quasar';
 import {useMixerStore} from 'stores/mixer-store';
-const allowedURLs:Array<string> = [
-  'https://soundcraft.com/ui-demo/mixer.html', // Ui12 / Ui16
-  'https://www.soundcraft.com/ui-demo/mixer.html', // Ui12 / Ui16
-  'https://soundcraft.com/ui24-software-demo/mixer.html', // Ui24r
-  'https://www.soundcraft.com/ui24-software-demo/mixer.html' // Ui24r
-]
+import {allowedURLs} from 'src/utils/constants';
 
 export const isAllowedURL = (url:string) => {
   return allowedURLs.includes(url)
@@ -17,17 +12,12 @@ export const isValidMixerIp = (ip:string) => {
 }
 
 export const reload = (isHardReload = false) => {
-  if (Platform.is.desktop){
-    if (isHardReload) {
-      localStorage.clear();
-      sessionStorage.clear();
-    }
+  localStorage.clear();
+  sessionStorage.clear();
+  const mixerStore = useMixerStore();
+  mixerStore.$reset()
+  if (Platform.is.desktop && isHardReload){
     location.reload();
-  }else {
-    localStorage.clear();
-    sessionStorage.clear();
-    const mixerStore = useMixerStore();
-    mixerStore.$reset()
   }
 
 }
