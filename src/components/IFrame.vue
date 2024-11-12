@@ -1,13 +1,11 @@
 <template>
-<!--  {{layoutsStore.selectedLayout}}-->
   <div v-for="(section, index) in layoutsStore.selectedLayout" :key="index" class="parent" :style="{height: section.height}">
-    <template v-if="section.frameIDs">
-      <div v-for="(frame, frameIndex) in section.frameIDs" :key="frameIndex" class="full-height">
-<!--        Frame SRC: {{mixerStore.mixerSrc + getID(frame)}}-->
+    <template v-if="section.subFrames">
+      <div v-for="(subFrame) in section.subFrames" :key="'subFrame' + subFrame">
         <iframe
           :allowFullScreen="false"
           class="full-width full-height"
-          :src="mixerStore.mixerSrc + getID(frame)"
+          :src="mixerStore.mixerSrc"
         />
       </div>
     </template>
@@ -16,9 +14,8 @@
       :key="index"
       :allowFullScreen="false"
       class="full-width"
-      :src="mixerStore.mixerSrc + getID(section.id)"
+      :src="mixerStore.mixerSrc"
     />
-<!--    Section SRC: {{mixerStore.mixerSrc + getID(section.id)}}-->
   </div>
 </template>
 
@@ -30,15 +27,5 @@ import {useMixerStore} from 'stores/mixer-store';
 const mixerStore = useMixerStore();
 
 const layoutsStore = useLayoutsStore()
-
-const default_id = 'SYNC_ID'
-
-const getID = (id: string) => {
-  if (layoutsStore.defaultSyncID) {
-    return default_id
-  } else {
-    return id
-  }
-}
 
 </script>

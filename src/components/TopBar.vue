@@ -20,7 +20,6 @@
           <span class="text-h6">
             Firmware version: {{mixerStore.mixerInfo.firmware}}
           </span>
-
         </q-tooltip>
       </div>
       <div class="text-red text-bold" v-show="mixerStore.isDemoMode">DEMO MODE</div>

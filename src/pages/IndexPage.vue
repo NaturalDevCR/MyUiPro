@@ -1,5 +1,5 @@
 <template>
-  <q-page class="bg-dark">
+  <q-page style="min-height: 100%" class="bg-dark">
     <div v-if="showMixerContent" class="disable-hardware-acceleration" :class="disableClass">
       <div class="q-pa-xs" :style="{height: `calc(100vh - ${commonStore.barSize})`}">
         <IFrame />
@@ -57,10 +57,8 @@ const getPlaylist = () => {
 
 const disableClass = ref<string>('');
 
-// Compute whether to show the mixer content
 const showMixerContent = computed(() =>
-  true
-  // mixerStore.isConnected || mixerStore.isDemoMode
+  mixerStore.isConnected || mixerStore.isDemoMode
 );
 
 onMounted(async () => {

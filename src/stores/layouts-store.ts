@@ -5,115 +5,78 @@ export const useLayoutsStore = defineStore('layoutsStore', {
     layoutsEditModal: true,
     selectedLayout: <any[]>[{ height: '100%' }],
     layoutOptions: <any>{
-      singleFrame: [{ height: '100%', id: '' }],
-      doubleFrame: [{ height: '50%', id: '' }, { height: '50%', id: '' }],
-      tripleFrameV1: [
+      one: [{ height: '100%' }],
+      two: [{ height: '50%' }, { height: '50%' }],
+      threeV1: [
         {
           height: '40%',
-          frameIDs: {
-            '0': '',
-            '1': '',
-          },
+          subFrames: 2
         },
-        { height: '60%', id: '' }
+        { height: '60%' }
       ],
-      tripleFrameV2: [
-        { height: '60%', id: '' },
+      threeV2: [
+        { height: '60%' },
         {
           height: '40%',
-          frameIDs: {
-            '0': '',
-            '1': '',
-          },
+          subFrames: 2
         },
       ],
-      quadFrame: [
+      four: [
         {
           height: '50%',
-          frameIDs: {
-            '0': '',
-            '1': '',
-          },
+          subFrames: 2
         },
         {
           height: '50%',
-          frameIDs: {
-            '0': '',
-            '1': '',
-          },
+          subFrames: 2
         },
       ],
-      quintupleFrameV1: [
-        { height: '30%', id: '' },
+      fiveV1: [
+        { height: '30%' },
         {
           height: '35%',
-          frameIDs: {
-            '0': '',
-            '1': '',
-          },
+          subFrames: 2
         },
         {
           height: '35%',
-          frameIDs: {
-            '0': '',
-            '1': '',
-          },
+          subFrames: 2
         },
       ],
-      quintupleFrameV2: [
+      fiveV2: [
         {
           height: '35%',
-          frameIDs: {
-            '0': '',
-            '1': '',
-          },
+          subFrames: 2
         },
-        { height: '30%', id: '' },
+        { height: '30%' },
         {
           height: '35%',
-          frameIDs: {
-            '0': '',
-            '1': '',
-          },
+          subFrames: 2
         },
       ],
-      quintupleFrameV3: [
+      fiveV3: [
         {
           height: '35%',
-          frameIDs: {
-            '0': '',
-            '1': '',
-          },
+          subFrames: 2
         },
         {
           height: '35%',
-          frameIDs: {
-            '0': '',
-            '1': '',
-          },
+          subFrames: 2
         },
-        { height: '30%', id: '' }
+        { height: '30%' }
       ],
-      sextupleFrame: [
+      sixV1: [
         {
           height: '25%',
-          frameIDs: {
-            '0': '',
-            '1': '',
-          },
+          subFrames: 2
         },
-        { height: '25%', id: '' },
-        { height: '25%', id: '' },
+        { height: '25%' },
+        { height: '25%' },
         {
           height: '25%',
-          frameIDs: {
-            '0': '',
-            '1': '',
-          },
+          subFrames: 2
         },
       ],
     },
-    defaultSyncID: false
   }),
 
   getters: {

@@ -26,6 +26,38 @@ But with My Ui Pro app you can recover it easily, just follow the get started in
 
 Well, the guys from Soundcraft expose it in plain text, and it can be retrieved with ease by just connecting to the mixer via websocket connection.
 
+### How to use it on iPad?
+
+The only way I've found so far to open the HTML file on an iPad or iOS device is by using Microsoft Edge Browser, if you find a better way, please let me know.
+
+- Download the HTML file to your iPad storage
+- Press and hold your finger on the file using the Files app in your iPad.
+- Touch the share icon
+- Select Edge Browser
+- Select Open in Microsoft Edge
+- Done
+
+You'll have to do this every time you want to use the HTML file.
+
+Please only use Edge, Chrome, Safari, or Firefox
+
+![IMG_0002](https://github.com/user-attachments/assets/9ef84104-a361-4a1b-8cf8-d538734d8fd4)
+
+![IMG_0003](https://github.com/user-attachments/assets/5b958641-aada-404f-97d8-b41e110b55e0)
+
+![IMG_0004](https://github.com/user-attachments/assets/011bc3e5-eb3b-459d-a360-b6c459f45de6)
+
+![IMG_0005](https://github.com/user-attachments/assets/5b3efd31-de86-4e77-add8-e49bd1adfe91)
+
+![IMG_0007](https://github.com/user-attachments/assets/50ba7544-b17a-451c-9c75-e4b047f6679f)
+
+
+
+### How to use it on MacOS, Windows or Linux?
+
+- Download the HTML file to your computer
+- Open the file
+- Done
 
 ## Limitations
 * Keyboard shortcuts won't work and will never work, this is a known limitation for iframes.
@@ -44,7 +76,6 @@ Well, the guys from Soundcraft expose it in plain text, and it can be retrieved 
 The idea is to be able to map some functions to midi devices.
 * Shortcuts Modal Window:
 A modal window where you'll have some shortcuts ready to use
-* Design your own multi-frame layouts
 
 ## Want to support my job?
 ### [Buy me a coffee](https://www.paypal.com/donate/?hosted_button_id=A8MKF5RNGQ77U).
