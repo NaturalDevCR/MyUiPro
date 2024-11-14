@@ -285,7 +285,7 @@ export const useMidiStore = defineStore('midiStore', {
       },
     },
     activeInput: <boolean>false,
-    midiDevices: <Array<object>> []
+    midiDevices: <any> []
   }),
   getters: {
     inputUIDs: state => {

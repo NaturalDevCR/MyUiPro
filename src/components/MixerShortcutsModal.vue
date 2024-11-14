@@ -11,7 +11,7 @@
           {{$t('shortcutsModal.title')}}
         </div>
         <q-space />
-        <q-btn dense flat icon="close" v-close-popup>
+        <q-btn dense flat icon="mdi-close" v-close-popup>
           <q-tooltip class="bg-white text-primary">Close</q-tooltip>
         </q-btn>
       </q-bar>

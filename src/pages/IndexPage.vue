@@ -30,7 +30,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, watch, computed } from 'vue'
+import { onMounted, ref, computed } from 'vue'
 import {useMixerStore} from 'stores/mixer-store';
 import {useQuasar} from 'quasar';
 import {useI18n} from 'vue-i18n';
@@ -49,11 +49,11 @@ const $q = useQuasar()
 
 const fabPos = ref<any>('top')
 
-const getPlaylist = () => {
-  mixerStore.conn.conn.sendMessage('MEDIA_GET_PLISTS')
-  mixerStore.conn.conn.sendMessage('NETCONFIG')
-  mixerStore.getPlayerPlaylist()
-}
+// const getPlaylist = () => {
+//   mixerStore.conn.conn.sendMessage('MEDIA_GET_PLISTS')
+//   mixerStore.conn.conn.sendMessage('NETCONFIG')
+//   mixerStore.getPlayerPlaylist()
+// }
 
 const disableClass = ref<string>('');
 

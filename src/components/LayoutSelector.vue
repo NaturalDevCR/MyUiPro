@@ -4,7 +4,7 @@
       <q-card-section class="row items-center">
         <div class="text-h6">Layout Selector</div>
         <q-space />
-        <q-btn icon="close" flat round dense v-close-popup />
+        <q-btn icon="mdi-close" flat round dense v-close-popup />
       </q-card-section>
       <q-separator />
 
@@ -16,8 +16,9 @@
                 dense
                 class="shadow-1 overflow-hidden q-my-md"
                 style="border-radius: 5px"
-                icon="explore"
+                icon="mdi-sync"
                 label="Sync Frames"
+                expand-icon="mdi-arrow-down"
                 header-class="bg-black text-white"
                 expand-icon-class="text-white"
               >

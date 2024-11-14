@@ -13,7 +13,7 @@
           Soundcraft {{mixerStore.mixerInfo.model}}
         </div>
         <q-space />
-        <q-btn class="q-ml-md" dense flat icon="close" v-close-popup>
+        <q-btn class="q-ml-md" dense flat icon="mdi-close" v-close-popup>
           <q-tooltip class="bg-white text-primary">Close</q-tooltip>
         </q-btn>
       </q-bar>
@@ -191,17 +191,12 @@
 </template>
 
 <script setup lang="ts">
-import {useCommonStore} from 'stores/common-store';
 import {useMixerStore} from 'stores/mixer-store';
 import LanguageSwitcher from 'components/languageSwitcher.vue';
 import {onMounted, ref, watch} from 'vue';
 import {useMidiStore} from 'stores/midi-store';
 import {mixerMidiMappable} from 'src/utils/constants/misc-constants';
-import {channel} from 'diagnostics_channel';
 
-//
-
-const commonStore = useCommonStore()
 const mixerStore = useMixerStore()
 const midiStore = useMidiStore()
 
@@ -277,11 +272,11 @@ const buttonIcon = (type:string, id:string) => {
   }
 }
 
-const rawMessage = ref<string>('')
-const sendRawMessage = () => {
-  console.log(rawMessage.value)
-  mixerStore.conn.conn.sendMessage(rawMessage.value)
-}
+// const rawMessage = ref<string>('')
+// const sendRawMessage = () => {
+//   console.log(rawMessage.value)
+//   mixerStore.conn.conn.sendMessage(rawMessage.value)
+// }
 const toggleListening = (type: string, id: string) => {
   const target = type + id
   console.log(target)

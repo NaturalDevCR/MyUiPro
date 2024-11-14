@@ -55,6 +55,7 @@
         direction="down"
         color="dark"
         icon="mdi-cog"
+        active-icon="mdi-close"
       >
         <q-fab-action @click="mixerStore.setupModal = true" color="teal-5" icon="mdi-cog">
           <q-tooltip class="bg-teal" anchor="center left" self="center right" :offset="[10, 10]">{{$t('misc.settings')}}</q-tooltip>
@@ -89,8 +90,8 @@ import {useQuasar} from 'quasar';
 import {useCommonStore} from 'stores/common-store';
 import {reload} from 'src/utils/helpers';
 import {useMidiStore} from 'stores/midi-store';
-import {useI18n} from 'vue-i18n';
-const { t } = useI18n()
+// import {useI18n} from 'vue-i18n';
+// const { t } = useI18n()
 
 const mixerStore = useMixerStore()
 const commonStore = useCommonStore()

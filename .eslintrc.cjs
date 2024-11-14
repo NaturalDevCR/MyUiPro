@@ -5,7 +5,7 @@ module.exports = {
   root: true,
 
   // https://eslint.vuejs.org/user-guide/#how-to-use-a-custom-parser
-  // Must use parserOptions instead of "parser" to allow vue-eslint-parser to keep working
+  // Must use parserOptions instead of 'parser' to allow vue-eslint-parser to keep working
   // `parser: 'vue-eslint-parser'` is already included with any 'plugin:vue/**' config and should be omitted
   parserOptions: {
     parser: require.resolve('@typescript-eslint/parser'),
@@ -77,10 +77,14 @@ module.exports = {
     // this rule, if on, would require explicit return type on the `render` function
     '@typescript-eslint/explicit-function-return-type': 'off',
 
-    "@typescript-eslint/ban-ts-comment": "off",
+    '@typescript-eslint/ban-ts-comment': 'off',
 
-    "@typescript-eslint/no-explicit-any": "off",
-    "@typescript-eslint/no-unused-vars": "off",
+    '@typescript-eslint/no-explicit-any': 'off',
+    '@typescript-eslint/no-unused-vars': 'off',
+
+    '@typescript-eslint/no-unsafe-member-access': 'off',
+
+    '@typescript-eslint/no-unsafe-argument': 'off',
 
     // in plain CommonJS modules, you can't use `import foo = require('foo')` to pass this rule, so it has to be disabled
     '@typescript-eslint/no-var-requires': 'off',
