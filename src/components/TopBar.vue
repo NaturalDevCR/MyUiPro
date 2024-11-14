@@ -6,15 +6,17 @@
       :style="{background: '#343434!important', height: commonStore.barSize}"
       class="text-white"
     >
-      <q-btn
+      <q-icon
+        class="cursor-pointer text-white"
         color="dark"
+        size="sm"
         @click="commonStore.barSize = '0px'; hideBar = true"
-        icon="mdi-arrow-collapse-vertical"
+        name="mdi-arrow-collapse-vertical"
         round
       />
       <div
         v-show="!$q.platform.is.mobile && !mixerStore.showPlayerControls"
-        class="text-bold orientation-landscape q-mr-sm">
+        class="text-bold orientation-landscape">
         {{mixerStore.mixerInfo.model}}
         <q-tooltip anchor="center right" self="center left" :offset="[10, 10]" class="bg-dark">
           <span class="text-h6">
@@ -22,10 +24,9 @@
           </span>
         </q-tooltip>
       </div>
-      <div class="text-red text-bold" v-show="mixerStore.isDemoMode">DEMO MODE</div>
       <q-space />
-      <div style="border-color: gray; border-radius: 5px" class="row q-card--bordered absolute-center q-pa-xs orientation-landscape">
-        <div v-if="!mixerStore.showPlayerControls" class="layout q-mr-xl">
+      <div style="border-color: gray; border-radius: 5px" class="row q-card--bordered q-pa-xs">
+        <div v-if="!mixerStore.showPlayerControls" class="q-mr-xl">
           <q-btn @click="commonStore.modal.layoutSelector = true" color="dark" icon="mdi-monitor-screenshot" />
         </div>
         <div class="edit">

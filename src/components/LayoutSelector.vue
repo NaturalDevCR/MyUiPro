@@ -9,7 +9,7 @@
       <q-separator />
 
       <q-card-section>
-        <q-scroll-area dark class="q-pa-sm" :visible="false" style="height: 600px; max-width: 500px;">
+        <q-scroll-area dark class="q-pa-sm" :visible="false" style="height: 500px; max-width: 500px;">
           <div class="row q-col-gutter-sm">
             <div class="col-12 text-center">
               <q-expansion-item
@@ -35,111 +35,53 @@
                 </q-card>
               </q-expansion-item>
             </div>
-            <div @click="selectLayout('one')" class="col-6 row  q-col-gutter-xs text-center">
-              <div class="col-12">1 Frame</div>
-              <div class="col-12">
-                <q-skeleton animation-speed="0" class="cursor-pointer" bordered height="100px" />
-              </div>
-            </div>
-            <div @click="selectLayout('two')" class="col-6 row  q-col-gutter-xs text-center">
-              <div class="col-12">2 Frames</div>
-              <div class="col-12">
-                <q-skeleton animation-speed="0" class="cursor-pointer" bordered height="50px" />
-              </div>
-              <div class="col-12">
-                <q-skeleton animation-speed="0" class="cursor-pointer" bordered height="50px" />
-              </div>
-            </div>
-          </div>
 
-          <div class="col-12 q-my-lg">
-            <q-separator spaced />
-          </div>
-
-          <div class="row q-col-gutter-sm">
-            <div class="col-6 row q-col-gutter-xs text-center" @click="selectLayout('threeV1')">
-              <div class="col-12">3 Frames (v1)</div>
-              <div class="col-6">
-                <q-skeleton animation-speed="0" class="cursor-pointer" bordered height="50px" />
-              </div>
-              <div class="col-6">
-                <q-skeleton animation-speed="0" class="cursor-pointer" bordered height="50px" />
+            <div v-for="(layout, key) in layoutsStore.layoutOptions" :key="key" class="col-6 row q-col-gutter-xs text-center">
+              <div class="col-12">{{ titleMap[key.toString()] }}</div>
+              <div @click="selectLayout(key)" v-for="(section, index) in layout" :key="index" class="col-12 row">
+                <template v-if="section.subFrames">
+                  <div v-for="subFrameIndex in section.subFrames" :key="subFrameIndex" :class="section.selector.class">
+                    <q-skeleton animation-speed="0" class="cursor-pointer" bordered :height="section.selector.height" />
+                  </div>
+                </template>
+                <div v-else :class="section.selector.class">
+                  <q-skeleton animation-speed="0" class="cursor-pointer" bordered :height="section.selector.height" />
+                </div>
               </div>
               <div class="col-12">
-                <q-skeleton animation-speed="0" class="cursor-pointer" bordered height="50px" />
+                <q-separator spaced />
               </div>
             </div>
-            <div class="col-6 row  q-col-gutter-xs text-center" @click="selectLayout('threeV2')">
-              <div class="col-12">3 Frames (v2)</div>
-              <div class="col-12">
-                <q-skeleton animation-speed="0" class="cursor-pointer" bordered height="50px" />
-              </div>
-              <div class="col-6">
-                <q-skeleton animation-speed="0" class="cursor-pointer" bordered height="50px" />
-              </div>
-              <div class="col-6">
-                <q-skeleton animation-speed="0" class="cursor-pointer" bordered height="50px" />
-              </div>
-            </div>
-          </div>
 
-          <div class="col-12 q-my-lg">
-            <q-separator spaced />
-          </div>
-
-          <div class="row q-col-gutter-sm">
-            <!-- Quad Frame -->
-            <div @click="selectLayout('four')" class="col-6 row  q-col-gutter-xs text-center">
-              <div class="col-12">4 Frames</div>
-              <div class="col-6">
-                <q-skeleton animation-speed="0" class="cursor-pointer" bordered height="50px" />
-              </div>
-              <div class="col-6">
-                <q-skeleton animation-speed="0" class="cursor-pointer" bordered height="50px" />
-              </div>
-              <div class="col-6">
-                <q-skeleton animation-speed="0" class="cursor-pointer" bordered height="50px" />
-              </div>
-              <div class="col-6">
-                <q-skeleton animation-speed="0" class="cursor-pointer" bordered height="50px" />
-              </div>
-            </div>
-            <!-- Quintuple Frame V1 -->
-            <div @click="selectLayout('fiveV1')" class="col-6 row  q-col-gutter-xs text-center">
-              <div class="col-12">5 Frames (v1)</div>
-              <div class="col-12">
-                <q-skeleton animation-speed="0" class="cursor-pointer" bordered height="33px" />
-              </div>
-              <div class="col-6">
-                <q-skeleton animation-speed="0" class="cursor-pointer" bordered height="33px" />
-              </div>
-              <div class="col-6">
-                <q-skeleton animation-speed="0" class="cursor-pointer" bordered height="33px" />
-              </div>
-              <div class="col-6">
-                <q-skeleton animation-speed="0" class="cursor-pointer" bordered height="33px" />
-              </div>
-              <div class="col-6">
-                <q-skeleton animation-speed="0" class="cursor-pointer" bordered height="33px" />
-              </div>
-            </div>
           </div>
         </q-scroll-area>
-
       </q-card-section>
     </q-card>
   </q-dialog>
 </template>
 
 <script setup lang="ts">
-import {useCommonStore} from 'stores/common-store';
-import {useLayoutsStore} from 'stores/layouts-store';
+import { useCommonStore } from 'stores/common-store';
+import { useLayoutsStore } from 'stores/layouts-store';
 
-const commonStore = useCommonStore()
-const layoutsStore = useLayoutsStore()
+const commonStore = useCommonStore();
+const layoutsStore = useLayoutsStore();
 
-const selectLayout = (value:any) => {
-  layoutsStore.selectedLayout = layoutsStore.layoutOptions[value]
+const selectLayout = (value: any) => {
+  layoutsStore.selectedLayout = layoutsStore.layoutOptions[value];
+};
+
+const titleMap:any = {
+  one: '1 Frame',
+  two: '2 Frames',
+  threeV1: '3 Frames (v1)',
+  threeV2: '3 Frames (v2)',
+  four: '4 Frames',
+  fiveV1: '5 Frames (v1)',
+  fiveV2: '5 Frames (v2)',
+  fiveV3: '5 Frames (v3)',
+  sixV1: '6 Frames (v1)',
+  sixV2: '6 Frames (v2)',
+
 }
-
 </script>

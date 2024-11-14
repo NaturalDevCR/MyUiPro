@@ -1,21 +1,16 @@
-export interface LayoutFrame {
-  id: string;
-}
-
-interface FrameLayout {
+export interface Selector {
+  class: string;
   height: string;
-  frames?: LayoutFrame[]; // frames es opcional
-  id?: string;  // id también es opcional
 }
 
-export interface Layout {
-  singleFrame: FrameLayout[];
-  doubleFrame: FrameLayout[];
-  tripleFrameV1: FrameLayout[];
-  tripleFrameV2: FrameLayout[];
-  quadFrame: FrameLayout[];
-  quintupleFrameV1: FrameLayout[];
-  quintupleFrameV2: FrameLayout[];
-  quintupleFrameV3: FrameLayout[];
-  sextupleFrame: FrameLayout[];
+export interface LayoutOption {
+  height: string;
+  subFrames?: number;
+  selector: Selector;
+}
+
+export interface LayoutsState {
+  layoutsEditModal: boolean;
+  selectedLayout: LayoutOption[];
+  layoutOptions: Record<string, LayoutOption[]>;
 }

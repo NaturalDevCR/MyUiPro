@@ -1,6 +1,6 @@
 <template>
   <q-page style="min-height: 100%" class="bg-dark">
-    <div v-if="showMixerContent" class="disable-hardware-acceleration" :class="disableClass">
+    <div v-if="showMixerContent" :class="disableClass">
       <div class="q-pa-xs" :style="{height: `calc(100vh - ${commonStore.barSize})`}">
         <IFrame />
       </div>

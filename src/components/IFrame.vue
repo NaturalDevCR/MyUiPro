@@ -1,5 +1,5 @@
 <template>
-  <div v-for="(section, index) in layoutsStore.selectedLayout" :key="index" class="parent" :style="{height: section.height}">
+  <div v-for="(section, key) in layoutsStore.selectedLayout" :key="key" class="parent" :style="{height: section.height}">
     <template v-if="section.subFrames">
       <div v-for="(subFrame) in section.subFrames" :key="'subFrame' + subFrame">
         <iframe
@@ -11,9 +11,9 @@
     </template>
     <iframe
       v-else
-      :key="index"
+      :key="key"
       :allowFullScreen="false"
-      class="full-width"
+      class="full-width full-height"
       :src="mixerStore.mixerSrc"
     />
   </div>

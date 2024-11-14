@@ -1,7 +1,7 @@
 import {isIPv4} from 'is-ip';
 import {Platform} from 'quasar';
 import {useMixerStore} from 'stores/mixer-store';
-import {allowedURLs} from 'src/utils/constants';
+import {allowedURLs} from 'src/utils/constants/misc-constants';
 
 export const isAllowedURL = (url:string) => {
   return allowedURLs.includes(url)

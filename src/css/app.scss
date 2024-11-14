@@ -6,13 +6,3 @@
 body {
   will-change: auto!important;
 }
-
-.disable-hardware-acceleration {
-  transform: translate3d(0, 0, 0);
-  /* other styles */
-}
-
-.disable-hardware-acceleration.disabled {
-  transform: none;
-  /* other styles */
-}

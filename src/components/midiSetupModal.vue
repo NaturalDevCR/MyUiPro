@@ -196,7 +196,7 @@ import {useMixerStore} from 'stores/mixer-store';
 import LanguageSwitcher from 'components/languageSwitcher.vue';
 import {onMounted, ref, watch} from 'vue';
 import {useMidiStore} from 'stores/midi-store';
-import {mixerMidiMappable} from 'src/utils/constants';
+import {mixerMidiMappable} from 'src/utils/constants/misc-constants';
 import {channel} from 'diagnostics_channel';
 
 //
