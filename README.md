@@ -78,7 +78,12 @@ The idea is to be able to map some functions to midi devices.
 A modal window where you'll have some shortcuts ready to use
 
 ## Want to support my job?
-### [Buy me a coffee](https://www.paypal.com/donate/?hosted_button_id=A8MKF5RNGQ77U).
+![buymeacoffee](https://github.com/user-attachments/assets/98a65e1b-2843-4333-8955-0db7a20477bf)
+
+<a href="https://buymeacoffee.com/naturaldevcr" target="_blank"><img src="https://github.com/user-attachments/assets/98a65e1b-2843-4333-8955-0db7a20477bf" alt="Buy Me A Coffee" style="height: 51px !important;width: 217px !important;" ></a>
+
+
+### [Donate - Paypal](https://www.paypal.com/donate/?hosted_button_id=A8MKF5RNGQ77U).
 
 ## Credits
 Make sure you check and say thanks to @fmalcher for his [Connection Library](https://github.com/fmalcher/soundcraft-ui/tree/main/packages/mixer-connection). which I'm using to connect to the mixer
