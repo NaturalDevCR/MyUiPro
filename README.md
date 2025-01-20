@@ -84,7 +84,7 @@ A modal window where you'll have some shortcuts ready to use
 ### [Donate - Paypal](https://www.paypal.com/donate/?hosted_button_id=A8MKF5RNGQ77U).
 
 ## Credits
-Make sure you check and say thanks to @fmalcher for his [Connection Library](https://github.com/fmalcher/soundcraft-ui/tree/main/packages/mixer-connection). which I'm using to connect to the mixer
+Make sure you check and say thanks to @fmalcher for his [Connection Library](https://fmalcher.github.io/soundcraft-ui/) which I'm using to connect to the mixer
 and don't forget you support his awesome job! ;)
 
 ## Want to join the Ui Community?
