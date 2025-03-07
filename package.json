@@ -33,7 +33,7 @@
     "soundcraft-ui-connection": "^3.0.0",
     "vue": "^3.5.12",
     "vue-country-flag-next": "^2.3.2",
-    "vue-i18n": "^10.0.4",
+    "vue-i18n": "^10.0.6",
     "vue-router": "^4.4.5",
     "vue3-slider": "^1.10.1",
     "webmidi": "^3.1.11"
