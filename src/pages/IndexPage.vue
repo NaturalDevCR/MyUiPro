@@ -68,9 +68,9 @@ onMounted(async () => {
   }
 
   if ($q.platform.is.desktop){
-    midiStore.initSavedMidiDevice()
+    await midiStore.initSavedMidiDevice()
   }
-  $q.platform.is.mobile ? fabPos.value = 'top-center' : null
+  fabPos.value = $q.platform.is.mobile ? 'top-center' : null
 
   disableClass.value = 'disable';
 

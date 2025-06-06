@@ -29,8 +29,11 @@ export const useAuthStore = defineStore('midiStore', {
       return currentPassword
     },
   },
-  persist: {
-    storage: localStorage,
-    paths: ['isAuthenticated'],
-  },
+  persist: [
+    {
+      key: 'authStore',
+      pick: ['isAuthenticated'],
+      storage: localStorage,
+    },
+  ]
 });

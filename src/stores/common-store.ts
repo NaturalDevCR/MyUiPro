@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 
-import * as app from '../../package.json'
+import { default as app } from "../../package.json";
 export const useCommonStore = defineStore('commonStore', {
   state: () => ({
     lang: <null|string>null,
@@ -18,16 +18,11 @@ export const useCommonStore = defineStore('commonStore', {
   actions: {
     //
   },
-  persist: {
-    storage: localStorage,
-    paths: ['lang'],
-    // enabled: true,
-    // strategies: [
-    //   {
-    //     key: 'commonStorage',
-    //     storage: localStorage,
-    //     paths: ['lang'],
-    //   },
-    // ],
-  },
+  persist: [
+    {
+      key: 'commonStore',
+      pick: ['lang'],
+      storage: localStorage,
+    },
+  ]
 });

@@ -1,4 +1,4 @@
-import { defineStore } from 'pinia';
+import { defineStore, acceptHMRUpdate } from 'pinia';
 import { SoundcraftUI } from 'soundcraft-ui-connection';
 import {DBToGainValue, isAllowedURL, isValidMixerIp, reload} from 'src/utils/helpers';
 import { map, filter, first } from 'rxjs/operators'
@@ -106,7 +106,7 @@ export const useMixerStore = defineStore('mixerStore', {
         this.mixerPassword = val;
       });
     },
-    async uiStatusObserver() {
+    uiStatusObserver() {
       const observer = this.conn.status$.subscribe((status:any) => {
         console.log(status.type)
         this.connStatus = status.type;
@@ -181,7 +181,7 @@ export const useMixerStore = defineStore('mixerStore', {
         webSocketCtor: WebSocket,
       });
 
-      await this.uiStatusObserver();
+      this.uiStatusObserver();
       await this.conn.connect();
     },
     uiDisconnect(reset = true) {
@@ -378,8 +378,15 @@ export const useMixerStore = defineStore('mixerStore', {
       this.midiListeners()
     }
   },
-  persist: {
-    storage: localStorage,
-    paths: ['ip'],
-  },
+  persist: [
+    {
+      key: 'mixerStore',
+      pick: ['ip'],
+      storage: localStorage,
+    },
+  ]
 });
+
+if (import.meta.hot) {
+  import.meta.hot.accept(acceptHMRUpdate(useMixerStore, import.meta.hot));
+}

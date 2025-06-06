@@ -1,5 +1,5 @@
 <template>
-  <q-page-container v-auto-animate>
+  <q-page-container>
     <q-bar
       v-if="!hideBar"
       dark
@@ -104,7 +104,7 @@ const fabPos = ref<any>('top')
 
 onMounted(async () => {
   await mixerStore.uiConnect()
-  midiStore.initSavedMidiDevice()
-  $q.platform.is.mobile ? fabPos.value = 'top-left' : null
+  await midiStore.initSavedMidiDevice()
+  fabPos.value = $q.platform.is.mobile ? 'top-left' : fabPos.value
 })
 </script>

@@ -279,13 +279,12 @@ const buttonIcon = (type:string, id:string) => {
 // }
 const toggleListening = (type: string, id: string) => {
   const target = type + id
-  console.log(target)
-  midiStore.currentlyListeningTo === target ?
+  return midiStore.currentlyListeningTo === target ?
     midiStore.currentlyListeningTo = null :
     midiStore.currentlyListeningTo = target
 }
-onMounted(() => {
-  midiStore.initMidi()
+onMounted(async () => {
+  await midiStore.initMidi()
 })
 //
 // watch(() => mixerStore.curr, (val: any) => {

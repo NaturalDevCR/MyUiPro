@@ -68,9 +68,13 @@ import { useLayoutsStore } from 'stores/layouts-store';
 const commonStore = useCommonStore();
 const layoutsStore = useLayoutsStore();
 
-const selectLayout = (value: any) => {
-  layoutsStore.selectedLayout = layoutsStore.layoutOptions[value];
+const selectLayout = (value: string) => {
+  const layout = layoutsStore.layoutOptions[value];
+  if (layout) {
+    layoutsStore.selectedLayout = layout;
+  }
 };
+
 
 const titleMap:any = {
   one: '1 Frame',

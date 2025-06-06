@@ -31,7 +31,6 @@ import {watch} from 'vue';
 const { locale } = useI18n({ useScope: 'global' })
 
 watch(() => commonStore.lang, lang => {
-  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   setLang(lang!)
 })
 
