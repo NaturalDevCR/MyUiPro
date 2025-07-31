@@ -78,20 +78,23 @@ export default defineConfig((ctx: any) => {
       // distDir
 
       extendViteConf(viteConf) {
-        viteConf.build = {
-          ...viteConf.build,
-          rollupOptions: {
-            output: {
-              manualChunks: {
-                // Separar vendors grandes
-                soundcraft: ['soundcraft-ui-connection'],
-                webmidi: ['webmidi'],
-                'quasar-vendor': ['quasar'],
-                'vue-vendor': ['vue', 'vue-router', 'pinia'],
+        // Only configure manualChunks if NOT building single file
+        if (!isSpaSingleFile) {
+          viteConf.build = {
+            ...viteConf.build,
+            rollupOptions: {
+              output: {
+                manualChunks: {
+                  // Separar vendors grandes
+                  soundcraft: ['soundcraft-ui-connection'],
+                  webmidi: ['webmidi'],
+                  'quasar-vendor': ['quasar'],
+                  'vue-vendor': ['vue', 'vue-router', 'pinia'],
+                },
               },
             },
-          },
-        };
+          };
+        }
       },
 
       // viteVuePluginOptions: {},
