@@ -4,7 +4,6 @@ import type { MuteGroupID } from 'soundcraft-ui-connection';
 import { DBToGainValue, isAllowedURL, isValidMixerIp, reload } from 'src/utils/helpers';
 import { map, filter, first } from 'rxjs/operators';
 import { visibilityManager } from '../utils/visibility-manager';
-import { useMidiStore } from 'stores/midi-store';
 import { Loading, Notify } from 'quasar';
 import type { Subscription } from 'rxjs';
 
@@ -776,9 +775,15 @@ export const useMixerStore = defineStore('mixerStore', {
       });
     },
 
-    midiListeners(): void {
+    // Remover import directo
+    // import { useMidiStore } from 'stores/midi-store';
+
+    // En la acción midiListeners(), cambiar:
+    async midiListeners(): Promise<void> {
       if (!this.conn) return;
 
+      // Usar inyección dinámica en lugar de import directo
+      const { useMidiStore } = await import('stores/midi-store');
       const midiStore = useMidiStore();
 
       // Master Fader Level DB con tipo específico
@@ -870,7 +875,7 @@ export const useMixerStore = defineStore('mixerStore', {
       this.inputListeners();
       this.muteListeners();
       this.recorderListeners();
-      this.midiListeners();
+      this.midiListeners().then(() => {}).catch(() => {});
     },
   },
   persist: {

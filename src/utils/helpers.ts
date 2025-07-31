@@ -11,15 +11,19 @@ export const isValidMixerIp = (ip:string) => {
   return isIPv4(ip) || isAllowedURL(ip)
 }
 
-export const reload = (isHardReload = false) => {
+// Cambiar la función reload para recibir el store como parámetro
+export const reload = (isHardReload = false, mixerStore?: any) => {
   localStorage.clear();
   sessionStorage.clear();
-  const mixerStore = useMixerStore();
-  mixerStore.$reset()
-  if (Platform.is.desktop && isHardReload){
-    location.reload();
+
+  // Solo usar el store si se proporciona
+  if (mixerStore) {
+    mixerStore.$reset();
   }
 
+  if (Platform.is.desktop && isHardReload) {
+    location.reload();
+  }
 }
 
 export const velocityToToggle: any = {

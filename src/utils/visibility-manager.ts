@@ -20,13 +20,13 @@ export class VisibilityManager {
     document.addEventListener('visibilitychange', () => {
       const wasVisible = this.isVisible;
       this.isVisible = !document.hidden;
-      
+
       if (!wasVisible && this.isVisible) {
         // Página se volvió visible
         const hiddenDuration = this.hiddenStartTime ? Date.now() - this.hiddenStartTime : 0;
         console.log(`Page visible after ${hiddenDuration}ms hidden`);
         this.hiddenStartTime = null;
-        
+
         // Si estuvo oculta por mucho tiempo, marcar para reconexión forzada
         if (hiddenDuration > this.MAX_HIDDEN_TIME) {
           console.log('Page was hidden for too long, forcing reconnection');
@@ -133,4 +133,18 @@ export class VisibilityManager {
 }
 
 // Export singleton instance
-export const visibilityManager = new VisibilityManager();
+// Al final del archivo, cambiar:
+// export const visibilityManager = new VisibilityManager();
+
+// Por:
+let visibilityManagerInstance: VisibilityManager | null = null;
+
+export const getVisibilityManager = (): VisibilityManager => {
+  if (!visibilityManagerInstance) {
+    visibilityManagerInstance = new VisibilityManager();
+  }
+  return visibilityManagerInstance;
+};
+
+// Para compatibilidad, mantener:
+export const visibilityManager = getVisibilityManager();

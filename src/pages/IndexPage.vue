@@ -70,8 +70,15 @@ onMounted(async () => {
   }
 
   if ($q.platform.is.desktop) {
-    await midiStore.initSavedMidiDevice();
+    // Only initialize MIDI if there's previous configuration
+    const midiInitialized = await midiStore.initMidiIfConfigured();
+    if (midiInitialized) {
+      console.log('MIDI initialized with saved configuration');
+    } else {
+      console.log('No MIDI configuration found, MIDI not initialized');
+    }
   }
+  
   if ($q.platform.is.mobile) {
     fabPos.value = 'top-center';
   }

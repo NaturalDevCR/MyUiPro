@@ -2,6 +2,11 @@
 
 Soundcraft Ui Multiframe Interface
 
+# !!!Notice - PLEASE READ!!!
+Sadly I don't have a Soundcract Ui mixer anymore (After 7 years of hard work, it just died already), so I can't continue working on this project, since I can't test anything on it, and I'm not planning to buy a new one.
+
+If you want to continue working on this project, you can fork it and continue working on it, but I can't guarantee that it will work on your mixer, or if you want to donate and old but usable Soundcraft Ui mixer to continue it, please let me know.
+
 ## What is this?
 With My Ui Pro you can use your Soundcraft Ui Mixer with multiple frames on a single screen.
 

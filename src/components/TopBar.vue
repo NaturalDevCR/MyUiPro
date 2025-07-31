@@ -63,7 +63,7 @@
         <q-fab-action @click="mixerStore.uiDisconnect()" color="red" icon="mdi-lan-disconnect">
           <q-tooltip class="bg-teal" anchor="center left" self="center right" :offset="[10, 10]">{{ $t('misc.disconnect') }}</q-tooltip>
         </q-fab-action>
-        <q-fab-action @click="reload(false)" icon="mdi-reload" color="dark">
+        <q-fab-action @click="reload(false, mixerStore)" icon="mdi-reload" color="dark">
           <q-tooltip class="bg-teal" anchor="center left" self="center right" :offset="[10, 10]">{{ $t('misc.reload') }}</q-tooltip>
         </q-fab-action>
         <q-fab-action
@@ -110,7 +110,13 @@ const fabPos = ref<any>('top');
 
 onMounted(async () => {
   await mixerStore.uiConnect();
-  await midiStore.initSavedMidiDevice();
+  
+  // Only initialize MIDI if there's previous configuration
+  const midiInitialized = await midiStore.initMidiIfConfigured();
+  if (!midiInitialized) {
+    console.log('MIDI not initialized - no previous configuration found');
+  }
+  
   if ($q.platform.is.mobile) {
     fabPos.value = 'top-left';
   }

@@ -2,7 +2,8 @@ import { defineStore } from 'pinia';
 import { WebMidi } from 'webmidi';
 import { Notify } from 'quasar';
 import { dbToVelocity, velocityToDb, velocityToToggle } from 'src/utils/helpers';
-import { useMixerStore } from 'stores/mixer-store';
+// Remover import directo
+// import { useMixerStore } from 'stores/mixer-store';
 
 export const useMidiStore = defineStore('midiStore', {
   state: () => ({
@@ -297,6 +298,12 @@ export const useMidiStore = defineStore('midiStore', {
         .filter((x: any) => x.uid !== null && x.type === 'hiz')
         .map((x: any) => x.uid);
     },
+    // Add this new getter to check if MIDI is configured
+    hasMidiConfiguration: (state) => {
+      return state.selectedDevice &&
+             Object.keys(state.selectedDevice).length > 0 &&
+             state.selectedDevice.id;
+    },
   },
   actions: {
     findObjectByUID(obj: any, targetUID: any) {
@@ -314,7 +321,7 @@ export const useMidiStore = defineStore('midiStore', {
           console.log(err);
         });
     },
-    getDevices() {
+    async getDevices() {
       this.midiDevices.splice(0, this.midiDevices.length);
       // Inputs
       WebMidi.inputs.forEach((input: any) => {
@@ -323,7 +330,7 @@ export const useMidiStore = defineStore('midiStore', {
 
       const device = Object.entries(this.selectedDevice).length;
       if (device) {
-        this.selectMidiDevice(this.selectedDevice);
+        await this.selectMidiDevice(this.selectedDevice);
       }
 
       // Inputs
@@ -332,12 +339,12 @@ export const useMidiStore = defineStore('midiStore', {
       // Outputs
       // WebMidi.outputs.forEach((output: { manufacturer: any; name: any; }) => console.log(output.manufacturer, output.name));
     },
-    selectMidiDevice(device: any) {
+    async selectMidiDevice(device: any) {
       this.selectedDevice = device;
       Notify.create({ message: `Connected to ${this.selectedDevice.name}` });
 
       if (this.midiDevices.some((x: any) => x.id === device.id)) {
-        this.listenForMidiMessages(this.selectedDevice.id);
+        await this.listenForMidiMessages(this.selectedDevice.id);
         Notify.create({ message: `Listening MIDI messages from ${this.selectedDevice.name}` });
       }
     },
@@ -383,7 +390,8 @@ export const useMidiStore = defineStore('midiStore', {
         //
       }
     },
-    listenForMidiMessages(deviceID: string) {
+    async listenForMidiMessages(deviceID: string) {
+      const { useMixerStore } = await import('stores/mixer-store');
       const mixerStore = useMixerStore();
       if (WebMidi.inputs.length && WebMidi.inputs.some((x: any) => x.id === deviceID)) {
         WebMidi.getInputById(deviceID).addListener('midimessage', (e: any) => {
@@ -440,11 +448,45 @@ export const useMidiStore = defineStore('midiStore', {
         });
       }
     },
-    async initSavedMidiDevice() {
-      if (this.selectedDevice.id) {
-        console.log(this.selectedDevice.id);
-        await this.initMidi().then(() => this.listenForMidiMessages(this.selectedDevice.id));
+    /**
+     * Initialize MIDI only if there's a previous configuration
+     * This method should be called during app startup
+     */
+    async initMidiIfConfigured() {
+      if (this.hasMidiConfiguration) {
+        await this.initSavedMidiDevice();
+        return true; // MIDI was initialized
       }
+      return false; // MIDI was not initialized
+    },
+    async initSavedMidiDevice() {
+      // Only initialize if there's a valid saved device configuration
+      if (this.hasMidiConfiguration) {
+        console.log('Initializing saved MIDI device:', this.selectedDevice.id);
+        try {
+          await this.initMidi();
+          await this.listenForMidiMessages(this.selectedDevice.id);
+        } catch (error) {
+          console.error('Failed to initialize MIDI device:', error);
+          // Optionally clear invalid configuration
+          this.selectedDevice = {};
+        }
+      } else {
+        console.log('No MIDI configuration found, skipping MIDI initialization');
+      }
+    },
+    /**
+     * Clear all MIDI configuration and disconnect
+     */
+    clearMidiConfiguration() {
+      this.selectedDevice = {};
+      this.currentMidiMapping = {
+        // Reset to default mapping structure
+        masterVolume: { uid: null, mapping: null },
+        // ... rest of the default mapping
+      };
+      this.midiDevices = [];
+      console.log('MIDI configuration cleared');
     },
   },
   persist: {
