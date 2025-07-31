@@ -191,6 +191,31 @@ export const useIframeStore = defineStore('iframe', () => {
     localStorage.setItem(`iframe-horizontal-splitter-${sectionIndex}`, newValue.toString());
   };
 
+  // Agregar manejo de visibilidad para iframes
+  const handleVisibilityChange = (visible: boolean, options?: { forceReconnect?: boolean }) => {
+    if (!visible) {
+      // Pausar actualizaciones de iframes cuando no son visibles
+      pauseIframeUpdates();
+    } else {
+      // Restaurar actualizaciones cuando vuelven a ser visibles
+      if (options?.forceReconnect) {
+        // Si estuvo oculto mucho tiempo, recargar iframes
+        resetState();
+      }
+      resumeIframeUpdates();
+    }
+  };
+  
+  const pauseIframeUpdates = () => {
+    // Implementar lógica para pausar actualizaciones de iframes
+    console.log('Pausing iframe updates to save resources');
+  };
+  
+  const resumeIframeUpdates = () => {
+    // Implementar lógica para reanudar actualizaciones de iframes
+    console.log('Resuming iframe updates');
+  };
+  
   return {
     // State
     iframeRefs,

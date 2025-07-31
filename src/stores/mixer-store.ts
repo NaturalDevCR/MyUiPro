@@ -1,30 +1,82 @@
 import { defineStore } from 'pinia';
-import { SoundcraftUI } from 'soundcraft-ui-connection';
+import { SoundcraftUI, ConnectionStatus } from 'soundcraft-ui-connection';
+import type { MuteGroupID } from 'soundcraft-ui-connection';
 import { DBToGainValue, isAllowedURL, isValidMixerIp, reload } from 'src/utils/helpers';
 import { map, filter, first } from 'rxjs/operators';
 import { visibilityManager } from '../utils/visibility-manager';
-
 import { useMidiStore } from 'stores/midi-store';
 import { Loading, Notify } from 'quasar';
+import type { Subscription } from 'rxjs';
+
+// Interfaces para mejorar el tipado
+interface MixerInfo {
+  model: string;
+  firmware: string;
+}
+
+interface MuteGroups {
+  master: boolean;
+  fx: boolean;
+  grp1: boolean;
+  grp2: boolean;
+}
+
+interface PlayerSettings {
+  playlists: string[];
+  currentState: number;
+  currentPlaylist: string;
+  currentTrack: string;
+  currentLength: number;
+  currentElapsedTime: number;
+  currentRemainingTime: number;
+  currentShuffleStatus: boolean | null;
+}
+
+interface RecorderSettings {
+  dualTrack: {
+    isRecording: boolean;
+    isBusy: boolean;
+  };
+}
+
+interface MixerSettings {
+  muteGroups: MuteGroups;
+  player: PlayerSettings;
+  recorder: RecorderSettings;
+}
+
+interface ChannelNames {
+  [key: string]: string;
+}
+
+interface ConnectionStatusEvent {
+  type: ConnectionStatus;
+  message?: string;
+}
+
+interface InputNameData {
+  name: string;
+  number: string;
+}
 
 export const useMixerStore = defineStore('mixerStore', {
   state: () => ({
     reconnectionCounter: 0,
-    isDemoMode: <boolean>false,
-    analogUi16Modal: <boolean>true,
-    setupModal: <boolean>false,
-    shortcutsModal: <boolean>false,
-    showPlayerControls: <boolean>false,
-    conn: <any>null,
-    connStatus: '',
-    mixerModel: '',
-    mixerPassword: '',
+    isDemoMode: false as boolean,
+    analogUi16Modal: true as boolean,
+    setupModal: false as boolean,
+    shortcutsModal: false as boolean,
+    showPlayerControls: false as boolean,
+    conn: null as SoundcraftUI | null,
+    connStatus: ConnectionStatus.Close as ConnectionStatus, // Cambiar de string a ConnectionStatus
+    mixerModel: '' as string,
+    mixerPassword: '' as string,
     mixerInfo: {
       model: '',
       firmware: '',
-    },
-    ip: '',
-    channelNames: <any>{},
+    } as MixerInfo,
+    ip: '' as string,
+    channelNames: {} as ChannelNames,
     mixerSettings: {
       muteGroups: {
         master: false,
@@ -37,9 +89,9 @@ export const useMixerStore = defineStore('mixerStore', {
         currentState: 0,
         currentPlaylist: '',
         currentTrack: '',
-        currentLength: <number>0,
-        currentElapsedTime: <number>0,
-        currentRemainingTime: <number>0,
+        currentLength: 0,
+        currentElapsedTime: 0,
+        currentRemainingTime: 0,
         currentShuffleStatus: null,
       },
       recorder: {
@@ -48,32 +100,36 @@ export const useMixerStore = defineStore('mixerStore', {
           isBusy: false,
         },
       },
-    },
+    } as MixerSettings,
     // New visibility and reconnection state
     isPageVisible: true,
     reconnectAttempts: 0,
     maxReconnectAttempts: 3,
     lastConnectionTime: 0,
-    connectionCheckInterval: <NodeJS.Timeout | null>null,
+    connectionCheckInterval: null as NodeJS.Timeout | null,
+    backgroundUpdateInterval: null as NodeJS.Timeout | null,
     visibilityCallbackRegistered: false,
+    // Add missing subscription properties
+    vuSubscription: null as Subscription | null,
+    playerTimeSubscription: null as Subscription | null,
   }),
   getters: {
-    isConnected: (state) => state.connStatus === 'OPEN',
+    isConnected: (state) => state.connStatus === ConnectionStatus.Open, // Ahora la comparación es type-safe
     mixerSrc: (state) => (state.isDemoMode ? state.ip : `http://${state.ip}/mixer.html?ID`),
     masterMute: (state) => state.mixerSettings.muteGroups.master,
     muteAllFxStatus: (state) => state.mixerSettings.muteGroups.fx,
     currentElapsedTime: (state) => {
-      const secondsToTime = (e: any) => {
-        const h = Math.floor(e / 3600)
-            .toString()
-            .padStart(2, '0'),
-          m = Math.floor((e % 3600) / 60)
-            .toString()
-            .padStart(2, '0'),
-          s = Math.floor(e % 60)
+      const secondsToTime = (seconds: number): string => {
+        const h = Math.floor(seconds / 3600)
             .toString()
             .padStart(2, '0');
-        return h + ':' + m + ':' + s;
+        const m = Math.floor((seconds % 3600) / 60)
+            .toString()
+            .padStart(2, '0');
+        const s = Math.floor(seconds % 60)
+            .toString()
+            .padStart(2, '0');
+        return `${h}:${m}:${s}`;
       };
       return secondsToTime(state.mixerSettings.player.currentElapsedTime);
     },
@@ -107,34 +163,142 @@ export const useMixerStore = defineStore('mixerStore', {
     },
 
     /**
+     * Restore all listeners after page becomes visible
+     */
+    restoreAllListeners(): void {
+      if (!this.conn || !this.isConnected) {
+        return;
+      }
+
+      console.log('Restoring all listeners...');
+
+      // Restore VU meter subscriptions if they were paused
+      if (!this.vuSubscription && this.conn.master) {
+        // Example: restore VU meter subscription
+        // this.vuSubscription = this.conn.master.vu$.subscribe(...);
+      }
+
+      // Restore player time subscription if it was paused
+      if (!this.playerTimeSubscription && this.conn.player) {
+        this.playerTimeSubscription = this.conn.player.elapsedTime$.subscribe((value: number) => {
+          this.mixerSettings.player.currentElapsedTime = value;
+        });
+      }
+
+      // Ensure all other listeners are active
+      this.listeners();
+    },
+
+    /**
      * Handle when page becomes visible
      */
+    // En handlePageVisible (línea 195)
     async handlePageVisible(): Promise<void> {
       console.log('Page became visible, checking connections...');
 
       // Reset reconnect attempts
       this.reconnectAttempts = 0;
 
-      // Clear any existing connection check interval
+      // Clear any existing intervals
       if (this.connectionCheckInterval) {
         clearInterval(this.connectionCheckInterval);
         this.connectionCheckInterval = null;
       }
 
-      // Verify and restore connections if needed
+      if (this.backgroundUpdateInterval) {
+        clearInterval(this.backgroundUpdateInterval);
+        this.backgroundUpdateInterval = null;
+      }
+
+      // AGREGAR: Verificación de modo demo
+      if (this.isDemoMode) {
+        console.log('Demo mode active, skipping connection verification');
+        this.restoreAllListeners();
+        return;
+      }
+
       try {
+        // NEW: Verificar si la conexión está realmente activa
+        const isConnectionHealthy = await this.verifyConnectionHealth();
+
+        if (!isConnectionHealthy) {
+          console.log('Connection unhealthy, forcing reconnection...');
+          await this.forceReconnection();
+        }
+
+        // Restaurar todos los listeners
+        this.restoreAllListeners();
+
+        // Verificar y restaurar conexiones si es necesario
         await this.verifyConnections();
       } catch (error) {
         console.error('Error in handlePageVisible:', error);
+        // En caso de error, forzar reconexión completa
+        await this.forceReconnection();
       }
 
       // Start periodic connection checks
       this.startConnectionMonitoring();
     },
 
+    // Nuevo método para verificar salud de conexión
+    async verifyConnectionHealth(): Promise<boolean> {
+
+      // AGREGAR: Verificación de modo demo
+      if (this.isDemoMode) {
+        console.log('Demo mode active, skipping connection health check');
+        return true; // En demo mode, siempre "saludable"
+      }
+      if (!this.conn || !this.isConnected) {
+        return false;
+      }
+
+      try {
+        // Enviar un ping simple para verificar que la conexión responde
+        return new Promise((resolve) => {
+          const timeout = setTimeout(() => resolve(false), 5000);
+
+          // Usar un observable que responda rápidamente
+          const subscription = this.conn!.store.state$.pipe(first()).subscribe(() => {
+            clearTimeout(timeout);
+            subscription.unsubscribe();
+            resolve(true);
+          });
+        });
+      } catch (error) {
+        console.error('Connection health check failed:', error);
+        return false;
+      }
+    },
+
+    // Método para forzar reconexión completa
+    async forceReconnection(): Promise<void> {
+      console.log('Forcing complete reconnection...');
+
+      if (this.isDemoMode) {
+        console.log('Demo mode active, skipping force reconnection');
+        return;
+      }
+
+      try {
+        // Desconectar completamente
+        await this.uiDisconnect(false);
+
+        // Esperar un momento antes de reconectar
+        await new Promise(resolve => setTimeout(resolve, 1000));
+
+        // Reconectar
+        await this.uiConnect();
+      } catch (error) {
+        console.error('Force reconnection failed:', error);
+        throw error;
+      }
+    },
+
     /**
      * Handle when page becomes hidden
      */
+    // En handlePageHidden, agregar más limpieza de recursos
     handlePageHidden(): void {
       console.log('Page became hidden, reducing activity...');
 
@@ -146,6 +310,45 @@ export const useMixerStore = defineStore('mixerStore', {
 
       // Clear any pending reconnection attempts
       visibilityManager.clearReconnectTimeouts();
+
+      // NEW: Pause non-essential subscriptions
+      this.pauseNonEssentialListeners();
+
+      // NEW: Reduce update frequency for essential listeners
+      this.reduceUpdateFrequency();
+    },
+
+    // Nuevos métodos para optimizar recursos
+    pauseNonEssentialListeners(): void {
+    // Pausar listeners de VU meters, que consumen muchos recursos
+    if (this.vuSubscription) {
+      this.vuSubscription.unsubscribe();
+      this.vuSubscription = null;
+    }
+
+    // Pausar actualizaciones de tiempo del player
+    if (this.playerTimeSubscription) {
+      this.playerTimeSubscription.unsubscribe();
+      this.playerTimeSubscription = null;
+    }
+    },
+
+    /**
+     * Reduce update frequency for background operation
+     */
+    reduceUpdateFrequency(): void {
+      // Clear existing interval if any
+      if (this.backgroundUpdateInterval) {
+        clearInterval(this.backgroundUpdateInterval);
+      }
+
+      // Change to less frequent updates for essential data
+      this.backgroundUpdateInterval = setInterval(() => {
+        if (!this.isPageVisible && this.isConnected) {
+          // Only verify connection health every 30 seconds in background
+          void this.verifyConnectionHealth();
+        }
+      }, 30000);
     },
 
     /**
@@ -261,7 +464,7 @@ export const useMixerStore = defineStore('mixerStore', {
         // Clear current connection state
         if (this.conn) {
           try {
-            this.conn.disconnect();
+            await this.conn.disconnect();
           } catch (error) {
             console.warn('Error disconnecting existing connection:', error);
           }
@@ -302,21 +505,35 @@ export const useMixerStore = defineStore('mixerStore', {
         this.connectionCheckInterval = null;
       }
 
+      if (this.backgroundUpdateInterval) {
+        clearInterval(this.backgroundUpdateInterval);
+        this.backgroundUpdateInterval = null;
+      }
+
+      // Clean up subscriptions
+      if (this.vuSubscription) {
+        this.vuSubscription.unsubscribe();
+        this.vuSubscription = null;
+      }
+
+      if (this.playerTimeSubscription) {
+        this.playerTimeSubscription.unsubscribe();
+        this.playerTimeSubscription = null;
+      }
+
       visibilityManager.clearReconnectTimeouts();
     },
 
     getUiModel() {
-      // const model$ = this.conn.store.state$.pipe(
-      //   map((state:any) => state.model),
-      //   filter(e => !!e),
-      //   first()
-      // );
-      // model$.subscribe((val:string) => {
-      //   this.mixerInfo.model = val.toUpperCase()
-      // })
+      if (!this.conn) {
+        return '';
+      }
       return this.conn.deviceInfo.model;
     },
     getFirmwareVersion() {
+    if (!this.conn) {
+        return '';
+      }
       // const firmware$ = this.conn.store.state$.pipe(
       //   map((state:any) => state.firmware),
       //   filter(e => !!e),
@@ -328,6 +545,9 @@ export const useMixerStore = defineStore('mixerStore', {
       return this.conn.deviceInfo.firmware$;
     },
     getPlayerPlaylist() {
+      if (!this.conn) {
+        return '';
+      }
       const playlists$ = this.conn.conn.allMessages$.pipe(
         map((state: any) => state),
         filter((e: any) => !!e && e.substring(0, 7) === 'PLISTS^'),
@@ -339,6 +559,9 @@ export const useMixerStore = defineStore('mixerStore', {
       });
     },
     getMixerPassword() {
+      if (!this.conn) {
+        return '';
+      }
       const password$ = this.conn.store.state$.pipe(
         map((state: any) => state['settings.block.pass']),
         filter((e) => !!e),
@@ -348,37 +571,40 @@ export const useMixerStore = defineStore('mixerStore', {
         this.mixerPassword = val;
       });
     },
-    uiStatusObserver() {
-      const observer = this.conn.status$.subscribe((status: any) => {
+    uiStatusObserver(): Subscription | undefined {
+      if (!this.conn) {
+        console.warn('No connection available for status observation');
+        return;
+      }
+
+      return this.conn.status$.subscribe((status: ConnectionStatusEvent) => {
         console.log(status.type);
-        this.connStatus = status.type;
+        this.connStatus = status.type; // Ahora type-safe
 
         switch (status.type) {
-          case 'OPENING':
+          case ConnectionStatus.Opening:
             Loading.show({
               message: 'Connecting',
             });
             Loading.hide();
             break;
-          case 'RECONNECTING':
+          case ConnectionStatus.Reconnecting:
             this.reconnectionCounter++;
             Loading.show({
               message: 'An error happened... retrying connection',
             });
             Loading.hide();
             break;
-          case 'CLOSING':
+          case ConnectionStatus.Closing:
             Loading.show({
               message: 'Disconnecting',
             });
             break;
-          case 'CLOSE':
+          case ConnectionStatus.Close:
             Loading.hide();
-            //
             break;
-          case 'ERROR':
+          case ConnectionStatus.Error:
             console.log(status);
-            // unsubscribe()
             Notify.create({
               message: "Couldn't connect to your mixer, check your network connection",
               type: 'negative',
@@ -387,15 +613,15 @@ export const useMixerStore = defineStore('mixerStore', {
             });
             Loading.hide();
             if (this.reconnectionCounter >= 5) {
-              observer.unsubscribe();
-              this.uiDisconnect(false);
+              // observer.unsubscribe(); // Se maneja automáticamente
+              this.uiDisconnect(false).then(() => {}).catch(()=>{});
             }
             break;
           default:
             // Connection is "OPEN"
             console.log(status.type);
             this.reconnectionCounter = 0;
-            this.lastConnectionTime = Date.now(); // Update connection time
+            this.lastConnectionTime = Date.now();
             this.getUiModel();
             this.getFirmwareVersion();
             this.listeners();
@@ -427,9 +653,9 @@ export const useMixerStore = defineStore('mixerStore', {
       this.uiStatusObserver();
       await this.conn.connect();
     },
-    uiDisconnect(reset = true) {
+    async uiDisconnect(reset = true) {
       if (!this.isDemoMode && this.conn) {
-        this.conn.disconnect();
+        await this.conn.disconnect();
       }
       this.setupModal = true;
       this.lastConnectionTime = 0;
@@ -438,14 +664,27 @@ export const useMixerStore = defineStore('mixerStore', {
         reload(true);
       }
     },
-    muteGroup(type: string) {
+    muteGroup(type: MuteGroupID): void {
+      if (!this.conn) {
+        console.warn('No connection available for mute group operation');
+        return;
+      }
       this.conn.muteGroup(type).mute();
     },
-    unMuteGroup(type: string) {
+
+    unMuteGroup(type: MuteGroupID): void {
+      if (!this.conn) {
+        console.warn('No connection available for unmute group operation');
+        return;
+      }
       this.conn.muteGroup(type).unmute();
     },
 
     setFaderLevel(dbValue: number, type: string, channel: number | null = null) {
+      if (!this.conn) {
+        console.warn('No connection available for status observation');
+        return;
+      }
       switch (type) {
         case 'master':
           this.conn.master.setFaderLevelDB(dbValue);
@@ -467,6 +706,10 @@ export const useMixerStore = defineStore('mixerStore', {
       }
     },
     setToggle(value: number, type: string, channel: number | null = null) {
+      if (!this.conn) {
+        console.warn('No connection available for status observation');
+        return;
+      }
       switch (type) {
         case 'hiz':
           console.log(value);
@@ -478,6 +721,10 @@ export const useMixerStore = defineStore('mixerStore', {
     },
 
     playerActions(action: string) {
+      if (!this.conn) {
+        console.warn('No connection available for status observation');
+        return;
+      }
       switch (true) {
         case action === 'play':
           return this.conn.player.play();
@@ -496,10 +743,18 @@ export const useMixerStore = defineStore('mixerStore', {
       }
     },
     dualTrackRecordToggle() {
+      if (!this.conn) {
+        console.warn('No connection available for status observation');
+        return;
+      }
       this.conn.recorderDualTrack.recordToggle();
     },
 
     playerListeners() {
+      if (!this.conn) {
+        console.warn('No connection available for status observation');
+        return;
+      }
       //Get Player State
       this.conn.player.state$.subscribe((value: number) => {
         this.mixerSettings.player.currentState = value;
@@ -521,12 +776,14 @@ export const useMixerStore = defineStore('mixerStore', {
       });
     },
 
-    midiListeners() {
+    midiListeners(): void {
+      if (!this.conn) return;
+
       const midiStore = useMidiStore();
-      // this.getRawStream()
-      // Master Fader Level DB
+
+      // Master Fader Level DB con tipo específico
       if (midiStore.currentMidiMapping.masterVolume.mapping) {
-        this.conn.master.faderLevelDB$.subscribe((value: any) => {
+        this.conn.master.faderLevelDB$.subscribe((value: number) => {
           midiStore.sendMidiMessage(value, 'masterVolume');
         });
       }
@@ -539,7 +796,7 @@ export const useMixerStore = defineStore('mixerStore', {
           );
 
           if (target.type === 'input') {
-            this.conn.master.input(target.number + 1).faderLevelDB$.subscribe((value: any) => {
+            this.conn.master.input(target.number + 1).faderLevelDB$.subscribe((value: number) => {
               if (!midiStore.activeInput)
                 midiStore.sendMidiMessage(value, 'masterInput', target.number);
             });
@@ -547,58 +804,43 @@ export const useMixerStore = defineStore('mixerStore', {
 
           if (target.type === 'gain') {
             if (this.mixerInfo.model === 'UI24') {
-              this.conn.hw(target.number + 1).gainDB$.subscribe((value: any) => {
-                // console.log('gain', value, target)
+              this.conn.hw(target.number + 1).gainDB$.subscribe((value: number) => {
                 if (!midiStore.activeInput)
                   midiStore.sendMidiMessage(value, 'gainInput', target.number);
               });
-            } else {
-              // const gain$ = this.conn.conn.allMessages$.pipe(
-              //   map((state:any) => state),
-              //   filter((e:any) => gainMessages.includes(e.substring(0, 14)) || gainMessages.includes(e.substring(0, 15))),
-              //   // first()
-              // );
-              //
-              // gain$.subscribe((val:any) => {
-              //   midiStore.sendMidiMessage(dbToVelocity(gainValueToDB(val), 'gain'), 'gainInput', target.number)
-              // })
             }
           }
         }
       }
-
-      // if (midiStore.currentMidiMapping.masterInput0.mapping){
-      //   this.conn.master.input(1).faderLevelDB$.subscribe((value:any) => {
-      //     midiStore.sendMidiMessage(value, 'masterInput', 0)
-      //   });
-      // }
     },
 
-    inputListeners() {
-      // this.conn.master.input(1).name$.subscribe((val:string) => {
-      //   this.channelNames.masterInput1 = val
-      // })
+    inputListeners(): void {
+      if (!this.conn) return;
 
       const inputNames$ = this.conn.store.state$.pipe(
-        map((state: any) =>
+        map((state: Record<string, unknown>) =>
           Object.entries(state)
             .filter(([key]) => key.startsWith('i.') && key.endsWith('.name'))
             .map(([key, value]) => ({
-              name: value,
+              name: value as string,
               number: key.split('.')[1],
-            })),
+            } as InputNameData)),
         ),
-        filter((name) => !!name),
+        filter((names) => names.length > 0),
       );
 
-      inputNames$.subscribe((val: string[]) => {
-        val.forEach((input: any) => {
+      inputNames$.subscribe((inputNames: InputNameData[]) => {
+        inputNames.forEach((input: InputNameData) => {
           this.channelNames[`masterInput${input.number}`] = input.name;
         });
       });
     },
 
     muteListeners() {
+      if (!this.conn) {
+        console.warn('No connection available for status observation');
+        return;
+      }
       //Master Mute
       this.conn.muteGroup('all').state$.subscribe((value: number) => {
         this.mixerSettings.muteGroups.master = value === 1;
@@ -610,6 +852,10 @@ export const useMixerStore = defineStore('mixerStore', {
     },
 
     recorderListeners() {
+      if (!this.conn) {
+        console.warn('No connection available for status observation');
+        return;
+      }
       //Recorder
       this.conn.recorderDualTrack.recording$.subscribe((value: number) => {
         this.mixerSettings.recorder.dualTrack.isRecording = value === 1;

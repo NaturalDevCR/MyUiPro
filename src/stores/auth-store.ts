@@ -18,6 +18,9 @@ export const useAuthStore = defineStore('authStore', {
      */
     getMixerPassword() {
       const mixerStore = useMixerStore();
+      if (!mixerStore.conn) {
+        return '';
+      }
       const password$ = mixerStore.conn.store.state$.pipe(
         map((state: any) => state.settings.block.pass),
         filter((e) => !!e),

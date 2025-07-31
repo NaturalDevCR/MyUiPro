@@ -74,6 +74,9 @@ const mixerStore = useMixerStore()
 const commonStore = useCommonStore()
 
 const getPlaylist = () => {
+  if (!mixerStore.conn) {
+    return;
+  }
   mixerStore.conn.conn.sendMessage('MEDIA_GET_PLISTS')
   mixerStore.conn.conn.sendMessage('NETCONFIG')
   mixerStore.getPlayerPlaylist()
