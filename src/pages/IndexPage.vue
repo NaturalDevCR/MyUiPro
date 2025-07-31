@@ -1,17 +1,21 @@
 <template>
   <q-page style="min-height: 100%" class="bg-dark">
     <div v-if="showMixerContent" :class="disableClass">
-      <div class="q-pa-xs" :style="{height: `calc(100vh - ${commonStore.barSize})`}">
+      <div class="q-pa-xs" :style="{ height: `calc(100vh - ${commonStore.barSize})` }">
         <IFrame />
       </div>
     </div>
-    <div v-else :style="{height: `calc(100vh - ${commonStore.barSize})`}" class="bg-dark text-white text-center q-pa-md flex flex-center">
+    <div
+      v-else
+      :style="{ height: `calc(100vh - ${commonStore.barSize})` }"
+      class="bg-dark text-white text-center q-pa-md flex flex-center"
+    >
       <div>
         <div style="font-size: 30vh">
           <q-icon name="mdi-alert-remove-outline" color="white" />
         </div>
-        <div class="text-h5" style="opacity:.8">
-          {{t('misc.disconnectedMsg')}}
+        <div class="text-h5" style="opacity: 0.8">
+          {{ t('misc.disconnectedMsg') }}
         </div>
         <q-btn
           @click="reload(true)"
@@ -30,24 +34,24 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, computed } from 'vue'
-import {useMixerStore} from 'stores/mixer-store';
-import {useQuasar} from 'quasar';
-import {useI18n} from 'vue-i18n';
-import {useMidiStore} from 'stores/midi-store';
-import {reload} from 'src/utils/helpers';
-const { t } = useI18n()
+import { onMounted, ref, computed } from 'vue';
+import { useMixerStore } from 'stores/mixer-store';
+import { useQuasar } from 'quasar';
+import { useI18n } from 'vue-i18n';
+import { useMidiStore } from 'stores/midi-store';
+import { reload } from 'src/utils/helpers';
+const { t } = useI18n();
 
 const mixerStore = useMixerStore();
 const midiStore = useMidiStore();
 
-import {useCommonStore} from 'stores/common-store';
-import IFrame from 'components/IFrame.vue';
+import { useCommonStore } from 'stores/common-store';
+import IFrame from 'components/iframe/IFrame.vue';
 const commonStore = useCommonStore();
 
-const $q = useQuasar()
+const $q = useQuasar();
 
-const fabPos = ref<any>('top')
+const fabPos = ref<any>('top');
 
 // const getPlaylist = () => {
 //   mixerStore.conn.conn.sendMessage('MEDIA_GET_PLISTS')
@@ -57,22 +61,21 @@ const fabPos = ref<any>('top')
 
 const disableClass = ref<string>('');
 
-const showMixerContent = computed(() =>
-  mixerStore.isConnected || mixerStore.isDemoMode
-);
+const showMixerContent = computed(() => mixerStore.isConnected || mixerStore.isDemoMode);
 
 onMounted(async () => {
-  console.log(document.location.host)
+  console.log(document.location.host);
   if (mixerStore.ip) {
-    await mixerStore.uiConnect()
+    await mixerStore.uiConnect();
   }
 
-  if ($q.platform.is.desktop){
-    await midiStore.initSavedMidiDevice()
+  if ($q.platform.is.desktop) {
+    await midiStore.initSavedMidiDevice();
   }
-  fabPos.value = $q.platform.is.mobile ? 'top-center' : null
+  if ($q.platform.is.mobile) {
+    fabPos.value = 'top-center';
+  }
 
   disableClass.value = 'disable';
-
-})
+});
 </script>

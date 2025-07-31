@@ -3,22 +3,36 @@
 </template>
 
 <script setup lang="ts">
-import {useQuasar} from 'quasar';
-import {useCommonStore} from 'stores/common-store';
-import {onMounted} from 'vue';
-import {useI18n} from 'vue-i18n';
+import { useQuasar } from 'quasar';
+import { useCommonStore } from 'stores/common-store';
+import { useMixerStore } from './stores/mixer-store';
+import { onMounted, onUnmounted } from 'vue';
+import { useI18n } from 'vue-i18n';
 
-const { locale } = useI18n({ useScope: 'global' })
+const mixerStore = useMixerStore();
 
-const $q = useQuasar()
-const commonStore = useCommonStore()
+const { locale } = useI18n({ useScope: 'global' });
+
+const $q = useQuasar();
+const commonStore = useCommonStore();
 
 onMounted(() => {
-  $q.dark.set(true)
-  if (!commonStore.lang){
-    commonStore.lang = $q.lang.getLocale()?.substring(0, 2) || 'en'
-  }else {
-    locale.value = ['en', 'es'].includes(commonStore.lang) ? commonStore.lang : 'en'
+  //Initialize visibility manager and connection monitoring on app startup
+  console.log('Initializing visibility manager...');
+  mixerStore.initVisibilityManager();
+
+  $q.dark.set(true);
+  if (!commonStore.lang) {
+    commonStore.lang = $q.lang.getLocale()?.substring(0, 2) || 'en';
+  } else {
+    locale.value = ['en', 'es'].includes(commonStore.lang) ? commonStore.lang : 'en';
   }
-})
+});
+/**
+ * Cleanup on app destruction
+ */
+onUnmounted(() => {
+  console.log('Cleaning up visibility manager...');
+  mixerStore.cleanup();
+});
 </script>

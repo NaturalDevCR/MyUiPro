@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
-import type {LayoutsState} from 'src/utils/types';
-import {layoutOptions} from 'src/utils/constants/layout-constants';
+import type { LayoutsState } from 'src/utils/types';
+import { layoutOptions } from 'src/utils/constants/layout-constants';
 
 export const useLayoutsStore = defineStore('layoutsStore', {
   state: (): LayoutsState => ({
@@ -22,5 +22,5 @@ export const useLayoutsStore = defineStore('layoutsStore', {
       pick: ['selectedLayout'],
       storage: localStorage,
     },
-  ]
+  ],
 });

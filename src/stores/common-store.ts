@@ -1,16 +1,17 @@
 import { defineStore } from 'pinia';
 
-import { default as app } from "../../package.json";
+import { default as app } from '../../package.json';
+
 export const useCommonStore = defineStore('commonStore', {
   state: () => ({
-    lang: <null|string>null,
+    lang: <null | string>null,
     version: app.version,
     isDarkMode: true,
     barSize: '45px',
     modal: {
       layoutSelector: false,
-      player: false
-    }
+      player: false,
+    },
   }),
   getters: {
     //
@@ -24,5 +25,5 @@ export const useCommonStore = defineStore('commonStore', {
       pick: ['lang'],
       storage: localStorage,
     },
-  ]
+  ],
 });

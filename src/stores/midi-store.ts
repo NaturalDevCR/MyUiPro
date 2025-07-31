@@ -1,13 +1,12 @@
 import { defineStore } from 'pinia';
-//@ts-ignore
-import {WebMidi} from "../../node_modules/webmidi/dist/esm/webmidi.esm.min.js";
-// import {WebMidi} from "webmidi";
-import { Notify } from 'quasar'
-import {dbToVelocity, velocityToDb, velocityToToggle} from 'src/utils/helpers';
-import {useMixerStore} from 'stores/mixer-store';
+import { WebMidi } from 'webmidi';
+import { Notify } from 'quasar';
+import { dbToVelocity, velocityToDb, velocityToToggle } from 'src/utils/helpers';
+import { useMixerStore } from 'stores/mixer-store';
+
 export const useMidiStore = defineStore('midiStore', {
   state: () => ({
-    currentlyListeningTo: <string | null> null,
+    currentlyListeningTo: <string | null>null,
     midiSetupModal: <boolean>false,
     selectedDevice: <any>{},
     midiProfiles: [],
@@ -285,22 +284,22 @@ export const useMidiStore = defineStore('midiStore', {
       },
     },
     activeInput: <boolean>false,
-    midiDevices: <any> []
+    midiDevices: <any>[],
   }),
   getters: {
-    inputUIDs: state => {
+    inputUIDs: (state) => {
       return Object.values(state.currentMidiMapping)
-        .filter((x:any) => x.uid !== null && ['input', 'gain'].includes(x.type))
-        .map((x:any) => x.uid);
+        .filter((x: any) => x.uid !== null && ['input', 'gain'].includes(x.type))
+        .map((x: any) => x.uid);
     },
-    hizUIDs: state => {
+    hizUIDs: (state) => {
       return Object.values(state.currentMidiMapping)
-        .filter((x:any) => x.uid !== null && x.type === 'hiz')
-        .map((x:any) => x.uid);
+        .filter((x: any) => x.uid !== null && x.type === 'hiz')
+        .map((x: any) => x.uid);
     },
   },
   actions: {
-    findObjectByUID (obj:any, targetUID:any) {
+    findObjectByUID(obj: any, targetUID: any) {
       for (const key in obj) {
         if (obj[key].uid === targetUID) {
           return obj[key];
@@ -310,18 +309,21 @@ export const useMidiStore = defineStore('midiStore', {
     },
     async initMidi() {
       await WebMidi.enable()
-      this.getDevices()
+        .then(() => this.getDevices())
+        .catch((err: any) => {
+          console.log(err);
+        });
     },
-    getDevices () {
-      this.midiDevices.splice(0, this.midiDevices.length)
+    getDevices() {
+      this.midiDevices.splice(0, this.midiDevices.length);
       // Inputs
-       WebMidi.inputs.forEach((input:any) => {
-        this.midiDevices.push({name: input.name, manufacturer: input.manufacturer, id: input.id})
+      WebMidi.inputs.forEach((input: any) => {
+        this.midiDevices.push({ name: input.name, manufacturer: input.manufacturer, id: input.id });
       });
 
-      const device = Object.entries(this.selectedDevice).length
+      const device = Object.entries(this.selectedDevice).length;
       if (device) {
-        this.selectMidiDevice(this.selectedDevice)
+        this.selectMidiDevice(this.selectedDevice);
       }
 
       // Inputs
@@ -330,99 +332,124 @@ export const useMidiStore = defineStore('midiStore', {
       // Outputs
       // WebMidi.outputs.forEach((output: { manufacturer: any; name: any; }) => console.log(output.manufacturer, output.name));
     },
-    selectMidiDevice(device:any) {
-      this.selectedDevice = device
-      Notify.create({message: `Connected to ${this.selectedDevice.name}`})
+    selectMidiDevice(device: any) {
+      this.selectedDevice = device;
+      Notify.create({ message: `Connected to ${this.selectedDevice.name}` });
 
-      if (this.midiDevices.some((x:any) => x.id === device.id)){
-        this.listenForMidiMessages(this.selectedDevice.id)
-        Notify.create({message: `Listening MIDI messages from ${this.selectedDevice.name}`})
+      if (this.midiDevices.some((x: any) => x.id === device.id)) {
+        this.listenForMidiMessages(this.selectedDevice.id);
+        Notify.create({ message: `Listening MIDI messages from ${this.selectedDevice.name}` });
       }
     },
-    getMidiMessageId(midi: WebMidi.MIDIMessage) {
+    getMidiMessageId(midi: any) {
       return `Type:${midi.message.statusByte}|Channel:${midi.message.channel}|Controller:${midi.message.data[1]}`;
     },
-    sendMidiMessage(db:number, type:string, inputNumber: number | null = null) {
-      const masterChannel = this.currentMidiMapping.masterVolume.mapping.channel
-      const masterController = this.currentMidiMapping.masterVolume.mapping.controller
-      const masterOutput = WebMidi.getOutputByName(this.selectedDevice.name)
-
-      const inputChannel = this.currentMidiMapping[`masterInput${inputNumber}`].mapping.channel
-      const inputController = this.currentMidiMapping[`masterInput${inputNumber}`].mapping.controller
-      const inputOutput = WebMidi.getOutputByName(this.selectedDevice.name)
-
-      const gainInputChannel = this.currentMidiMapping[`masterInput${inputNumber}`].mapping.channel
-      const gainInputController = this.currentMidiMapping[`masterInput${inputNumber}`].mapping.controller
-      const gainInputOutput = WebMidi.getOutputByName(this.selectedDevice.name)
-
+    sendMidiMessage(db: number, type: string, inputNumber: number | null = null) {
       switch (type) {
-        case 'masterVolume':
-          masterOutput.channels[masterChannel].sendControlChange(masterController, dbToVelocity(db, 'level'))
-          break
-        case 'masterInput':
-          inputOutput.channels[inputChannel].sendControlChange(inputController, dbToVelocity(db, 'level'))
-          break
-        case 'gainInput':
-          gainInputOutput.channels[gainInputChannel].sendControlChange(gainInputController, dbToVelocity(db, 'gain'))
-          break
+        case 'masterVolume': {
+          const masterChannel = this.currentMidiMapping.masterVolume.mapping.channel;
+          const masterController = this.currentMidiMapping.masterVolume.mapping.controller;
+          const masterOutput = WebMidi.getOutputByName(this.selectedDevice.name);
+          masterOutput?.channels[masterChannel]?.sendControlChange(
+            masterController,
+            dbToVelocity(db, 'level'),
+          );
+          break;
+        }
+        case 'masterInput': {
+          const inputChannel = this.currentMidiMapping[`masterInput${inputNumber}`].mapping.channel;
+          const inputController =
+            this.currentMidiMapping[`masterInput${inputNumber}`].mapping.controller;
+          const inputOutput = WebMidi.getOutputByName(this.selectedDevice.name);
+          inputOutput?.channels[inputChannel]?.sendControlChange(
+            inputController,
+            dbToVelocity(db, 'level'),
+          );
+          break;
+        }
+        case 'gainInput': {
+          const gainInputChannel =
+            this.currentMidiMapping[`masterInput${inputNumber}`].mapping.channel;
+          const gainInputController =
+            this.currentMidiMapping[`masterInput${inputNumber}`].mapping.controller;
+          const gainInputOutput = WebMidi.getOutputByName(this.selectedDevice.name);
+          gainInputOutput?.channels[gainInputChannel]?.sendControlChange(
+            gainInputController,
+            dbToVelocity(db, 'gain'),
+          );
+          break;
+        }
         default:
-          //
+        //
       }
     },
-    listenForMidiMessages(deviceID:string) {
-      const mixerStore = useMixerStore()
-      if (WebMidi.inputs.length && WebMidi.inputs.some((x:any) => x.id === deviceID)){
-        WebMidi.getInputById(deviceID).addListener('midimessage', (e:any) => {
-          const velocity = e.data[2]
+    listenForMidiMessages(deviceID: string) {
+      const mixerStore = useMixerStore();
+      if (WebMidi.inputs.length && WebMidi.inputs.some((x: any) => x.id === deviceID)) {
+        WebMidi.getInputById(deviceID).addListener('midimessage', (e: any) => {
+          const velocity = e.data[2];
           //Set the mapping for each control
           if (this.currentlyListeningTo) {
             this.currentMidiMapping[this.currentlyListeningTo].mapping = {
               channel: e.message.channel,
               command: e.message.command,
               controller: e.data[1],
-            }
-            this.currentMidiMapping[this.currentlyListeningTo].uid = this.getMidiMessageId(e)
-            this.currentlyListeningTo = null
+            };
+            this.currentMidiMapping[this.currentlyListeningTo].uid = this.getMidiMessageId(e);
+            this.currentlyListeningTo = null;
           }
-          this.activeInput = true
-          const inputControl = this.findObjectByUID(this.currentMidiMapping, this.getMidiMessageId(e))
-          const hizInputControl = this.findObjectByUID(this.currentMidiMapping, this.getMidiMessageId(e))
+          this.activeInput = true;
           switch (true) {
             //Master Level
             case this.getMidiMessageId(e) === this.currentMidiMapping.masterVolume.uid:
-              mixerStore.setFaderLevel(velocityToDb(velocity, 'level'), 'master')
-              this.activeInput = false
-              break
+              mixerStore.setFaderLevel(velocityToDb(velocity, 'level'), 'master');
+              this.activeInput = false;
+              break;
             //Any Input Level
-            case this.inputUIDs.includes(this.getMidiMessageId(e)):
+            case this.inputUIDs.includes(this.getMidiMessageId(e)): {
+              const inputControl = this.findObjectByUID(
+                this.currentMidiMapping,
+                this.getMidiMessageId(e),
+              );
               // console.log(inputControl)
               // console.log(this.getMidiMessageId(e))
-              mixerStore.setFaderLevel(velocityToDb(velocity, inputControl.dbType), inputControl.type, inputControl.number)
-              this.activeInput = false
-              break
-            case this.hizUIDs.includes(this.getMidiMessageId(e)):
-              mixerStore.setToggle(velocityToToggle[velocity], hizInputControl.type, hizInputControl.number)
-              this.activeInput = false
-              break
+              mixerStore.setFaderLevel(
+                velocityToDb(velocity, inputControl.dbType),
+                inputControl.type,
+                inputControl.number,
+              );
+              this.activeInput = false;
+              break;
+            }
+            case this.hizUIDs.includes(this.getMidiMessageId(e)): {
+              const hizInputControl = this.findObjectByUID(
+                this.currentMidiMapping,
+                this.getMidiMessageId(e),
+              );
+              mixerStore.setToggle(
+                velocityToToggle[velocity],
+                hizInputControl.type,
+                hizInputControl.number,
+              );
+              this.activeInput = false;
+              break;
+            }
             default:
-              console.log(this.getMidiMessageId(e))
+              console.log(this.getMidiMessageId(e));
           }
-
         });
       }
     },
     async initSavedMidiDevice() {
-      if (this.selectedDevice.id){
-        console.log(this.selectedDevice.id)
-        await this.initMidi().then(() => this.listenForMidiMessages(this.selectedDevice.id))
+      if (this.selectedDevice.id) {
+        console.log(this.selectedDevice.id);
+        await this.initMidi().then(() => this.listenForMidiMessages(this.selectedDevice.id));
       }
-    }
-  },
-  persist: [
-    {
-      key: 'midiStore',
-      pick: ['selectedDevice', 'midiProfiles', 'currentMidiMapping'],
-      storage: localStorage,
     },
-  ]
+  },
+  persist: {
+    key: 'midiStore',
+    storage: localStorage,
+    pick: ['selectedDevice', 'midiProfiles', 'currentMidiMapping'],
+  },
 });

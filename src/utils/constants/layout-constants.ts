@@ -1,4 +1,4 @@
-import type {LayoutOption} from 'src/utils/types';
+import type { LayoutOption } from 'src/utils/types';
 
 const layoutOne: LayoutOption[] = [
   {

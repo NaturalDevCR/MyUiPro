@@ -1,6 +1,6 @@
 {
   "name": "my-ui-pro-next",
-  "version": "2.1.1",
+  "version": "2.1.2",
   "description": "Multiframe Wrapper for Soundcraft Ui Mixers",
   "productName": "My Ui Pro",
   "author": "Josue <35145882+NaturalDevCR@users.noreply.github.com>",
@@ -20,7 +20,7 @@
     "build:mac-universal": "quasar build -m electron -T darwin -A universal",
     "build:win64": "quasar build -m electron -T win32 -A x64",
     "build:spa": "quasar clean && quasar build -m spa --single-file",
-    "build:bex": "quasar clean && quasar build -m bex -T chrome"
+    "build:bex": "quasar clean && quasar build -m bex"
   },
   "dependencies": {
     "@quasar/extras": "^1.17.0",
@@ -40,7 +40,6 @@
     "webmidi": "^3.1.12"
   },
   "devDependencies": {
-    "@electron/packager": "^18.3.6",
     "@eslint/js": "^9.14.0",
     "@intlify/unplugin-vue-i18n": "^4.0.0",
     "@quasar/app-vite": "^2.1.0",
@@ -48,7 +47,6 @@
     "@vue/eslint-config-prettier": "^10.1.0",
     "@vue/eslint-config-typescript": "^14.4.0",
     "autoprefixer": "^10.4.2",
-    "electron": "^36.4.0",
     "eslint": "^9.14.0",
     "eslint-plugin-vue": "^9.30.0",
     "globals": "^15.12.0",

@@ -1,3 +1,11 @@
 {
-  "extends": "./.quasar/tsconfig.json"
+  "extends": "./.quasar/tsconfig.json",
+  "exclude": [
+    "functions",
+    "dist",
+    "node_modules",
+    "src-capacitor",
+    "src-cordova",
+    "quasar.config.*.temporary.compiled*"
+  ]
 }

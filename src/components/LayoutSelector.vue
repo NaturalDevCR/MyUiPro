@@ -69,12 +69,13 @@ const commonStore = useCommonStore();
 const layoutsStore = useLayoutsStore();
 
 const selectLayout = (value: string) => {
-  const layout = layoutsStore.layoutOptions[value];
-  if (layout) {
-    layoutsStore.selectedLayout = layout;
+  const selectedLayoutOption = layoutsStore.layoutOptions[value];
+  if (selectedLayoutOption && Array.isArray(selectedLayoutOption)) {
+    layoutsStore.selectedLayout = selectedLayoutOption;
+  } else {
+    console.warn(`Layout option '${value}' not found`);
   }
 };
-
 
 const titleMap:any = {
   one: '1 Frame',

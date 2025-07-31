@@ -5,16 +5,21 @@ export default {
   failed: 'Action failed',
   success: 'Action was successful',
   connectionStatus: {
-    'OPENING': 'Initializing',
-    'OPEN': 'Connected',
-    'CLOSING': 'Disconnecting',
-    'CLOSE': 'Disconnected',
-    'ERROR': 'Error',
-    'RECONNECTING': 'Reconnecting'
+    OPENING: 'Initializing',
+    OPEN: 'Connected',
+    CLOSING: 'Disconnecting',
+    CLOSE: 'Disconnected',
+    ERROR: 'Error',
+    RECONNECTING: 'Reconnecting',
   },
   validation: {
     required: 'This field is required',
-    invalidIP: 'The IP is invalid'
+    invalidIP: 'The IP is invalid',
+  },
+  // Add missing errors section
+  errors: {
+    connectionFailed: 'Connection failed',
+    maxRetriesReached: 'Maximum retries reached',
   },
   misc: {
     midiSettings: 'MIDI Settings',
@@ -24,21 +29,26 @@ export default {
     back: 'Back',
     reload: 'Reload',
     settings: 'Settings',
-    options: 'Opciones',
+    options: 'Options',
     supportMe: 'Support my work',
     layoutChooseMsg: "You've activated the {number} screens layout",
-    disconnectedMsg: "Oops! we couldn't connect to the mixer, check that your mixer is turned on, also check if your device is connected to the mixer wifi, and finally check if the mixer IP is correct."
+    disconnectedMsg:
+      "Oops! we couldn't connect to the mixer, check that your mixer is turned on, also check if your device is connected to the mixer wifi, and finally check if the mixer IP is correct.",
+    // Add missing keys
+    connecting: 'Connecting',
+    retry: 'Retry',
   },
   shortcutsModal: {
     title: 'Soundcraft Ui - Shortcuts',
-    muteAllMsg: 'Are you sure you want to mute all channels?'
+    muteAllMsg: 'Are you sure you want to mute all channels?',
   },
   setupModal: {
     title: 'Soundcraft Ui - Setup',
     errors: {
       noModel: 'You need to define the Ui model first',
-      noIP: 'The Mixer IP is mandatory'
+      noIP: 'The Mixer IP is mandatory',
     },
-    advice: 'Please make sure your mixer is turned on, also check if you are connected to your mixer wifi, and verify that your mixer IP is correct.',
-  }
+    advice:
+      'Please make sure your mixer is turned on, also check if you are connected to your mixer wifi, and verify that your mixer IP is correct.',
+  },
 };

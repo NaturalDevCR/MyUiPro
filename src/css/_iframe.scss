@@ -1,0 +1,132 @@
+/* Container styles */
+.resizable-iframe-container {
+  width: 100%;
+  position: relative;
+  background: var(--q-dark-page);
+  overflow: hidden;
+}
+
+/* Layout section styles */
+.layout-section {
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.complex-layout {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* Ensure splitters take full height of their container */
+.layout-section .q-splitter {
+  flex: 1;
+  min-height: 0;
+}
+
+.single-frame {
+  width: 100%;
+  height: 100%;
+}
+
+/* Loading and error overlay styles */
+.iframe-loading-overlay,
+.iframe-error-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.8);
+  color: var(--q-primary);
+  z-index: 1000;
+}
+
+.iframe-error-overlay {
+  color: var(--q-negative);
+}
+
+.loading-text,
+.error-text {
+  margin-top: 16px;
+  font-size: 14px;
+  opacity: 0.8;
+}
+
+/* Iframe wrapper styles */
+.iframe-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: 4px;
+}
+
+.mixer-iframe {
+  border: none;
+  width: 100%;
+  height: 100%;
+  transition:
+    opacity 0.3s ease,
+    filter 0.3s ease;
+  background: var(--q-dark-page);
+}
+
+/* Splitter customization */
+:deep(.q-splitter__separator) {
+  background: var(--q-primary);
+  opacity: 0.6;
+  transition: opacity 0.3s ease;
+}
+
+:deep(.q-splitter__separator:hover) {
+  opacity: 1;
+  background: var(--q-accent);
+}
+
+:deep(.q-splitter__before),
+:deep(.q-splitter__after) {
+  overflow: hidden;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .iframe-wrapper {
+    border-radius: 2px;
+  }
+
+  :deep(.q-splitter__separator) {
+    width: 8px;
+    height: 8px;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  :deep(.q-splitter__separator) {
+    background: white;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .mixer-iframe,
+  :deep(.q-splitter__separator) {
+    transition: none;
+  }
+}
+
+/* Focus styles for accessibility */
+:deep(.q-splitter__separator:focus) {
+  outline: 2px solid var(--q-accent);
+  outline-offset: -1px;
+}
